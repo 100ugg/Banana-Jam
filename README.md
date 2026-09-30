@@ -6,12 +6,12 @@
 
 ## Credits
 
-Banana Jam would not exist without these two projects. Nearly everything here is their work.
+Banana Jam would not exist without these two projects
 
-| Project | Author | What they made |
-|---|---|---|
-| [**Strawberry Jam**](https://github.com/glvckoma/Strawberry-Jam) | [**glvckoma**](https://github.com/glvckoma) | The launcher, plugin system, mod menu, network tools, themes and the plugins included here. |
-| [**Jam**](https://github.com/Sxip/jam) | [**Sxip**](https://github.com/Sxip) | The original project that Strawberry Jam was forked from. |
+| Project | Author |
+|---|---|
+| [**Strawberry Jam**](https://github.com/glvckoma/Strawberry-Jam) | [**glvckoma**](https://github.com/glvckoma) |
+| [**Jam**](https://github.com/Sxip/jam) | [**Sxip**](https://github.com/Sxip) |
 
 > This project is free. If you paid for it, you were scammed.
 
