@@ -14,7 +14,7 @@
       this.attachShadow({ mode: 'open' }).innerHTML = `
         <link rel="stylesheet" href="components/screens/AccountManagementPanel.css">
         <div id="panel-container">
-          <div class="account-add-button" title="Add Account">
+          <div class="account-add-button" title="Save account: type your username and password, then click +">
             <span>+</span>
           </div>
           <div id="saved-accounts-list">
@@ -198,7 +198,7 @@
         return 0;
       });
 
-      const MIN_DISPLAY_SLOTS = 7;
+      const MIN_DISPLAY_SLOTS = 3;
       const totalSlots = Math.max(MIN_DISPLAY_SLOTS, sortedAccounts.length);
 
       for (let i = 0; i < totalSlots; i++) {

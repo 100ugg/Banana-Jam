@@ -16,19 +16,19 @@ class CacheService {
     const cachePaths = [];
 
     const appDataPath = app.getPath('appData');
-    cachePaths.push(path.join(appDataPath, 'strawberry-jam'));
-    cachePaths.push(path.join(appDataPath, 'strawberry-jam-classic'));
+    cachePaths.push(path.join(appDataPath, 'bananajam'));
+    cachePaths.push(path.join(appDataPath, 'bananajam-classic'));
 
     this.cachePaths = cachePaths;
     return cachePaths;
   }
 
   getStrawberryJamPath() {
-    return path.join(app.getPath('appData'), 'strawberry-jam');
+    return path.join(app.getPath('appData'), 'bananajam');
   }
 
   getAJClassicPath() {
-    return path.join(app.getPath('appData'), 'strawberry-jam-classic');
+    return path.join(app.getPath('appData'), 'bananajam-classic');
   }
 
   async clearGameSessionCache() {
@@ -316,7 +316,7 @@ class CacheService {
   getUninstallerPath() {
     if (process.platform === 'win32') {
       const localAppData = app.getPath('localAppData');
-      return path.join(localAppData, 'Programs', 'strawberry-jam', 'Uninstall strawberry-jam.exe');
+      return path.join(localAppData, 'Programs', 'bananajam', 'Uninstall Banana Jam.exe');
     } else if (process.platform === 'darwin') {
       return null;
     } else {

@@ -1,5 +1,6 @@
 {
-  "productName": "strawberry-jam",
+  "appId": "com.100ugg.bananajam",
+  "productName": "Banana Jam",
   "electronVersion": "32.0.1",
   "directories": {
     "output": "build"
@@ -52,32 +53,44 @@
     "artifactName": "${productName}-${version}-${arch}.${ext}"
   },
   "nsis": {
-    "artifactName": "${productName}-Setup-${version}.${ext}",
-    "oneClick": false,
-    "allowToChangeInstallationDirectory": true,
+    "artifactName": "BananaJam-Setup-${version}.${ext}",
+    "oneClick": true,
     "perMachine": false,
     "allowElevation": false,
     "installerIcon": "./assets/images/icon.ico",
     "uninstallerIcon": "./assets/images/icon.ico",
     "createDesktopShortcut": "always",
     "createStartMenuShortcut": true,
-    "shortcutName": "Strawberry Jam",
+    "shortcutName": "Banana Jam",
     "include": "build/installer.nsh",
     "warningsAsErrors": false,
-    "guid": "a2f8d7c4-6f3b-4c9e-9a2b-1c8f9e4d7a3c"
+    "guid": "e8a83ab5-c430-4afd-8915-396f4ea6d02e",
+    "runAfterFinish": true,
+    "deleteAppDataOnUninstall": false
   },
   "files": [
     "**/*",
     "!**/*.{md,txt,pdf,docx}",
+    "!data/**/*",
+    "!ffdec-export/**/*",
+    "!swf-edit/**/*",
     "!dev/**/*",
     "!build/**/*",
     "!scripts/**/*",
+    "!installer/**/*",
     "!plugins/**/*",
     "!assets/client/**/*",
     "!*.{eslintignore,eslintrc,gitignore,gitattributes,editorconfig}"
   ],
   "extraFiles": [
-    "settings.json"
+    "settings.json",
+    {
+      "from": "plugins",
+      "to": "plugins",
+      "filter": [
+        "**/*"
+      ]
+    }
   ],
   "extraResources": [
     {
@@ -93,6 +106,8 @@
         "!osxapp.asar",
         "!**/*.bak",
         "!**/*-backup*",
+        "!flash/ajclient-test*.swf",
+        "!flash/ajclient-original.swf",
         "!**/*.tmp",
         "!**/*-copy*",
         "!**/temp_*",
@@ -103,11 +118,5 @@
       "from": "src/electron/clear-cache-helper.js",
       "to": "clear-cache-helper.js"
     }
-  ],
-  "publish": {
-    "provider": "github",
-    "owner": "glvckoma",
-    "repo": "Strawberry-Jam",
-    "releaseType": "release"
-  }
+  ]
 }

@@ -80,7 +80,7 @@ class CommandRegistrar {
             if (busyPorts.length === 0) {
               app.consoleMessage({
                 type: 'notify',
-                message: 'No processes found on any Strawberry Jam ports. No action needed.'
+                message: 'No processes found on any Banana Jam ports. No action needed.'
               })
               return true
             }
@@ -130,7 +130,7 @@ class CommandRegistrar {
             return false
           }
         },
-        description: 'Scans Strawberry Jam ports for conflicts. Use /terminate confirm to kill blocking processes.'
+        description: 'Scans Banana Jam ports for conflicts. Use /terminate confirm to kill blocking processes.'
       })
     } else if (typeof app.registerConsoleCommand === 'function') {
       app.registerConsoleCommand(

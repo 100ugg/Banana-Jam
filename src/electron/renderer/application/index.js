@@ -598,7 +598,7 @@ module.exports = class Application extends EventEmitter {
     
     const startupMessageId = `startup-message-${Date.now()}`
     this.consoleMessage({
-      message: 'Starting Strawberry Jam...',
+      message: 'Starting Banana Jam...',
       type: 'wait',
       details: { messageId: startupMessageId }
     })
@@ -653,7 +653,7 @@ module.exports = class Application extends EventEmitter {
     this._portConflicts = []
     this._checkPortConflicts()
 
-    await this._checkVersionAndShowUpdatesModal()
+    // Banana Jam: no "What's new" pop-up on start
     ipcRenderer.send('renderer-ready')
 
     // Set up handlers for the minimize and close buttons
@@ -830,7 +830,7 @@ module.exports = class Application extends EventEmitter {
 
       for (const conflict of conflicts) {
         this.consoleMessage({
-          message: `Port ${conflict.port} is occupied by ${conflict.processName} (PID: ${conflict.pid}). Use /terminate or close the application manually, or Strawberry Jam may not work correctly.`,
+          message: `Port ${conflict.port} is occupied by ${conflict.processName} (PID: ${conflict.pid}). Use /terminate or close the application manually, or Banana Jam may not work correctly.`,
           type: 'warning'
         })
       }

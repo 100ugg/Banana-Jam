@@ -1,70 +1,38 @@
 <div align="center">
-  <img src="assets/images/strawberry-jam.png" alt="Strawberry Jam Logo" width="200"/>
-  <h1>Strawberry Jam</h1>
-  <a href='https://discord.gg/a2y6bZnhB3'>
-    <img src="https://discord.com/api/guilds/1210352841059729508/widget.png?style=shield" alt="Discord" />
-  </a>
+  <img src="assets/images/banana.png" alt="Banana Jam" width="96">
+  <h1>Banana Jam</h1>
+  <p>A customizable <a href="https://github.com/glvckoma/Strawberry-Jam">Strawberry Jam</a>.</p>
 </div>
 
-<br />
+## Credits
 
-<div align="center">
-A tool for exploring and extending <a href="https://classic.animaljam.com">Animal Jam Classic</a>!
-<br /><br /></div>
+Banana Jam would not exist without these two projects. Nearly everything here is their work.
 
-## 🍓 What's Different from the Original Jam?
+| Project | Author | What they made |
+|---|---|---|
+| [**Strawberry Jam**](https://github.com/glvckoma/Strawberry-Jam) | [**glvckoma**](https://github.com/glvckoma) | The launcher, plugin system, mod menu, network tools, themes and the plugins included here. |
+| [**Jam**](https://github.com/Sxip/jam) | [**Sxip**](https://github.com/Sxip) | The original project that Strawberry Jam was forked from. |
 
-Strawberry Jam is a fork of the original [Jam](https://github.com/Sxip/jam) project, with new features, plugins, and improvements not found in the original.
+> This project is free. If you paid for it, you were scammed.
 
-## 🚀 Quick Start
+## Install (Windows)
 
-###  Windows
-1.  Download `Strawberry-Jam-Setup.exe` from our [latest release](https://github.com/glvckoma/strawberry-jam/releases/latest)
-2.  Run the installer
-3.  Launch Strawberry Jam from your Start menu
+1. Go to the [Releases](https://github.com/100ugg/Banana-Jam/releases) page and download `BananaJam-Setup-0.7.0.exe`.
+2. Run it. If Windows SmartScreen appears, click **More info**, then **Run anyway**. (The installer is not code-signed.)
+3. Open **Banana Jam** and press **Play**. The first time it makes its own copy of the game, so it takes a little longer.
 
-## ✨ Features
+## Running from source
 
-*   **🔍 Network Analysis:** Watch messages between your game and AJ's servers
-*   **🔌 Plugin System:** Add cool new features with plugins
-*   **🖥️ Easy to Use:** Simple desktop app with everything you need
+1. Install [Node.js](https://nodejs.org).
+2. In the project folder run `npm install`, then in `assets/client` run `npm install` as well.
+3. Run `npm run dev` to try it out.
+4. Run `npm run build` to make the installer. It appears in the `build` folder. (On Windows, turn on Developer Mode first.)
 
-## ⚠️ Important Warning!
+Some files exist twice on purpose, once for the launcher and once for the game window (for example `assets/scripts/wz-style.js` and `assets/client/gui/components/util/WzStyle.js`). Keep each pair identical.
 
-Using tools like Strawberry Jam might break the game's rules and result in account termination. Please be careful and use it responsibly. Neither I nor Sxip are responsible for any loss of accounts.
+## Important warning
 
-## 👩‍💻 For Developers
-
-Want to run Strawberry Jam from its source code, make your own changes, or create plugins? Here's how to get started:
-
-1.  **Install [Node.js](https://nodejs.org):** You'll need Node.js to run the project and manage its components.
-2.  **Get the Code:**
-    *   Open your terminal or command prompt.
-    *   Use git to clone the repository (download the code):
-        ```bash
-        git clone https://github.com/glvckoma/strawberry-jam.git
-        ```
-    *   Navigate into the project directory:
-        ```bash
-        cd strawberry-jam
-        ```
-3.  **Install Dependencies:**
-    *   This command downloads all the necessary bits and pieces the project relies on:
-        ```bash
-        npm install
-        ```
-4.  **Run in Development Mode:**
-    *   To run the application for development (e.g., to test changes as you make them):
-        ```bash
-        npm run dev
-        ```
-5.  **Build for Distribution (Optional):**
-    *   If you want to create a packaged version of the application (like the `.exe` installer or a version for Mac/Linux) that you can share or install:
-        ```bash
-        npm run build
-        ```
-    *   This will create the distributable files in a `dist` or `release` folder (the exact location might vary based on configuration).
-
+Using tools like this might break the game's rules and could get your account banned. Use it carefully. Neither 100ugg, glvckoma nor Sxip are responsible for any loss of accounts.
 
 ## Legal Notice
 
@@ -84,7 +52,14 @@ Any redistribution, modification, or derivative work must include clear attribut
 This software must not be used for unauthorized access attempts, credential validation, account checking, or any activities that violate terms of service or compromise user security. It is intended solely for educational purposes and understanding network protocols.
 
 **Licensing:**
-Strawberry Jam is licensed under the PolyForm Noncommercial License 1.0.0, which permits noncommercial use, modification, and sharing while prohibiting commercial, production, or hosted deployment. Review the LICENSE file for complete terms.
+Strawberry Jam is licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/), which permits noncommercial use, modification, and sharing while prohibiting commercial, production, or hosted deployment. Read the full terms at that link. Banana Jam is shared under the same license.
+
+Required Notice: Copyright glvckoma (https://github.com/glvckoma/Strawberry-Jam). Required Notice: Copyright Sxip (https://github.com/Sxip/jam).
 
 **Takedown Procedure:**
 WildWorks or its authorized representatives may request project removal by opening an issue in this repository. Upon verification of authority, the project will be taken down promptly.
+
+
+---
+
+*The legal notice above is glvckoma's, carried over from Strawberry Jam. It applies to Banana Jam too; "the author" and "Strawberry Jam" include Banana Jam and its fork author, 100ugg.*

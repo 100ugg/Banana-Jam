@@ -110,8 +110,24 @@
       #border-top, #border-right, #border-bottom, #border-left {
         visibility: hidden;
       }
+      /* --- CUSTOM BORDER (Banana Jam) ---
+         Each side reads its own variable. Values are any CSS background,
+         so a plain colour works now and images/gradients can be added later. */
+      #border-top-background    { background: var(--border-top, transparent); }
+      #border-right-container   { background: var(--border-right, transparent); }
+      #border-bottom-background { background: var(--border-bottom, transparent); }
+      #border-left-background   { background: var(--border-left, transparent); }
+      #border-top-background, #border-right-container,
+      #border-bottom-background, #border-left-background {
+        background-size: cover;
+        background-position: center;
+        transition: background 0.3s ease;
+      }
+      /* Only fill the frame with the border colour while the game is showing,
+         so it can't peek out under the login screen. */
+      :host(:not(.show)) #game-frame-container { background: none !important; }
       #border-top-background { grid-area: top; }
-      #border-right-background { grid-area: right; }
+      #border-right-container { grid-area: right; }
       #border-bottom-background { grid-area: bottom; }
       #border-left-background { grid-area: left; }
 
@@ -179,6 +195,77 @@
         display: block;
         color: #888;
       }
+      /* Banana Jam: "Fill the window" - no border, the game fills the whole window */
+      #game-frame-container.wz-fill { grid-template: 1fr / 1fr !important; grid-template-areas: "game" !important; }
+      #game-frame-container.wz-fill #border-top-background,
+      #game-frame-container.wz-fill #border-right-container,
+      #game-frame-container.wz-fill #border-bottom-background,
+      #game-frame-container.wz-fill #border-left-background,
+      #game-frame-container.wz-fill #wz-border-image { display: none !important; }
+      #game-frame-container.wz-fill #flash-game-container { grid-area: game; width: 100%; height: 100%; }
+      /* Banana Jam: border picture sits behind the game and the border strips */
+      #wz-border-image {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+        display: none;
+      }
+      #wz-border-image-inner {
+        position: absolute;
+        inset: 0;
+        transform-origin: var(--wz-border-x, 50%) var(--wz-border-y, 50%);
+        transform: scale(var(--wz-border-scale, 1));
+        transition: filter 0.3s ease;
+      }
+      #wz-border-image-img {
+        position: absolute;
+        inset: 0;
+        background-image: var(--wz-border-image, none);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: var(--wz-border-x, 50%) var(--wz-border-y, 50%);
+        transform: scale(var(--wz-border-sx, 1), var(--wz-border-sy, 1));
+      }
+      #game-frame-container.wz-has-image #wz-border-image { display: block; }
+      #game-frame-container.wz-blur #wz-border-image-inner { filter: blur(var(--wz-border-blur, 16px)); }
+      #game-frame-container.wz-has-image #border-top-background,
+      #game-frame-container.wz-has-image #border-bottom-background,
+      #game-frame-container.wz-has-image #border-left-background,
+      #game-frame-container.wz-has-image #border-right-container { background: transparent !important; }
+      #border-top-background, #border-bottom-background, #border-left-background, #border-right-container { position: relative; z-index: 1; }
+      #flash-game-container { z-index: 1; }
+
+      /* Banana Jam: clean edges where the game meets the border (no rounded corners, glow or outline) */
+      #flash-game-container {
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      webview { border-radius: 0 !important; }
+      /* Banana Jam: mod menu button uses the In-Game UI colour */
+      #mod-menu-btn {
+        background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 49%, rgba(0,0,0,0.06) 50%, rgba(255,255,255,0.12) 100%), var(--wz-ui, rgba(18, 18, 18, 0.85));
+        border: 1px solid rgba(0, 0, 0, 0.45);
+        border-radius: 4px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+      }
+      #mod-menu-btn:hover { border-color: rgba(255, 255, 255, 0.6); }
+      #mod-menu-btn svg { color: #ffffff; }
+      :host-context(.wz-style-modern) #mod-menu-btn { background: var(--wz-ui, rgba(18, 18, 18, 0.85)); border: 1px solid transparent; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+      :host-context(.wz-style-cards) #mod-menu-btn { background: var(--wz-ui, rgba(18, 18, 18, 0.85)); border: 1px solid transparent; border-radius: 50%; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+      :host-context(.wz-style-bubble) #mod-menu-btn {
+        background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 51%), var(--wz-ui, rgba(18, 18, 18, 0.85));
+        border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 50%;
+        box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.25), 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 14px rgba(255, 255, 255, 0.35);
+      }
+      :host-context(.wz-style-bubble) #mod-menu-btn:hover { box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.55); }
+      :host-context(.wz-style-comic) #mod-menu-btn {
+        background: var(--wz-ui, rgba(18, 18, 18, 0.85));
+        border: 2px solid #3b2f2f; border-radius: 12px; box-shadow: 2px 2px 0 #3b2f2f;
+      }
+      :host-context(.wz-style-comic) #mod-menu-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #3b2f2f; }
 
       webview {
         transition: opacity 0.75s cubic-bezier(0.4, 0, 0.2, 1);
@@ -207,6 +294,7 @@
 
     </style>
     <div id="game-frame-container" class="logged-out">
+      <div id="wz-border-image"><div id="wz-border-image-inner"><div id="wz-border-image-img"></div></div></div>
       <div id="border-top-background"></div>
       <div id="border-bottom-background"></div>
       <div id="border-left-background"></div>
@@ -224,21 +312,125 @@
 
       this.modMenuBtn = this.shadowRoot.getElementById("mod-menu-btn");
       if (this.modMenuBtn) {
-        this.modMenuBtn.addEventListener("click", () => {
-          if (this.webViewElem && this._webviewReady) {
-            this.webViewElem.sendInputEvent({ type: 'keyDown', keyCode: 'F10' });
-            this.webViewElem.sendInputEvent({ type: 'keyUp', keyCode: 'F10' });
-          }
-        });
-        document.addEventListener('mod-menu-btn-changed', (e) => {
-          this.modMenuBtn.style.display = e.detail.enabled ? 'flex' : 'none';
-        });
+        // the old corner button is replaced by the one in the bottom-left column
+        this.modMenuBtn.style.display = 'none';
       }
+      // Banana Jam: the in-game Mod Menu uses the same colours as the rest of the program
+      this._bjLastTheme = '';
+      this._bjPushTheme = () => {
+        try {
+          const wv = this.webViewElem;
+          const host = document.getElementById('login-screen');
+          if (!wv || !host || !this._webviewReady || !wv.executeJavaScript) return Promise.resolve(false);
+          const cs = getComputedStyle(host);
+          const probe = document.createElement('div');
+          probe.style.display = 'none';
+          document.body.appendChild(probe);
+          const rgb = (v, fb) => {
+            probe.style.color = '';
+            probe.style.color = (v || '').trim() || fb;
+            const m = getComputedStyle(probe).color.match(/[\d.]+/g) || [0, 0, 0];
+            return [Math.round(+m[0]), Math.round(+m[1]), Math.round(+m[2])];
+          };
+          const mix = (a, b, t) => [0, 1, 2].map((i) => Math.round(a[i] * (1 - t) + b[i] * t));
+          const hex = (c) => c.map((n) => ('0' + Math.max(0, Math.min(255, n)).toString(16)).slice(-2)).join('');
+          // when the program has not set its own colours yet, the Mod Menu starts on the Default look (dark unless Light is chosen)
+          const light = !!(window.WzMode && window.WzMode.get() === 'light');
+          const card = rgb(cs.getPropertyValue('--wz-card'), light ? '#faf9f6' : '#2b2d33');
+          const text = rgb(cs.getPropertyValue('--wz-text'), light ? '#2a2f35' : '#ececec');
+          const accent = rgb(cs.getPropertyValue('--wz-ui') || cs.getPropertyValue('--theme-primary'), light ? '#3f5b70' : '#5a67e8');
+          document.body.removeChild(probe);
+          const args = [accent, card, mix(card, text, 0.07), mix(card, text, 0.22), text, mix(text, card, 0.45)].map(hex);
+          let look = 'mac';
+          try { if (window.WzStyle) look = window.WzStyle.get().ui; } catch (e) {}
+          const key = args.join(',') + '|' + look;
+          if (key === this._bjLastTheme) return Promise.resolve(true);
+          this._bjLastTheme = key;
+          return wv.executeJavaScript(
+            "(function(){try{var l=document.querySelectorAll('embed,object');for(var i=0;i<l.length;i++){if(typeof l[i].bjSetTheme==='function'){l[i].bjSetTheme('" +
+            args.join("','") + "');if(typeof l[i].bjSetStyle==='function'){l[i].bjSetStyle('" + look + "');}return true;}}}catch(e){}return false;})()"
+          );
+        } catch (e) { return Promise.resolve(false); }
+      };
+      setInterval(() => { if (!document.hidden) this._bjPushTheme(); }, 5000);
+      window.addEventListener('wz-style-change', () => { this._bjLastTheme = ''; try { this._bjPushTheme(); } catch (e) {} });
+      // the Mod Menu's "Open style editor" button asks the game window to open the editor
+      setInterval(() => {
+        try {
+          const wv = this.webViewElem;
+          if (document.hidden || !wv || !this._webviewReady || !wv.executeJavaScript) return;
+          wv.executeJavaScript(
+            "(function(){try{var l=document.querySelectorAll('embed,object');for(var i=0;i<l.length;i++){if(typeof l[i].bjGetLook==='function'){return l[i].bjGetLook();}}}catch(e){}return '';})()"
+          ).then((v) => {
+            if (v === '@editor' && window.WzMenuStyle) window.WzMenuStyle.open();
+            // the Mod Menu's sun / moon button: the same shared light / dark switch
+            if (v === '@mode' && window.WzMode) window.WzMode.toggle();
+          }, () => {});
+        } catch (e) {}
+      }, 1000);
+      // the Mod Menu's own colours, borders and picture (from the style editor)
+      this._bjSkinKey = null; this._bjImgKey = null;
+      this._bjPushSkin = () => {
+        try {
+          const wv = this.webViewElem; const ms = window.WzMenuStyle;
+          if (!wv || !ms || !this._webviewReady || !wv.executeJavaScript) return;
+          const str = ms.serialize(); const img = ms.image();
+          const find = "var l=document.querySelectorAll('embed,object');for(var i=0;i<l.length;i++){if(typeof l[i].bjSetSkin==='function'){";
+          if (str !== this._bjSkinKey) {
+            this._bjSkinKey = str;
+            wv.executeJavaScript("(function(){try{" + find + "l[i].bjSetSkin('" + str + "');return true;}}}catch(e){}return false;})()").catch(() => {});
+          }
+          if (img !== this._bjImgKey) {
+            this._bjImgKey = img;
+            if (img) {
+              const ask = () => { try { wv.executeJavaScript("(function(){try{" + find + "return l[i].bjSkinInfo();}}}catch(e){}return 'nofn';})()").then((r) => {
+                if (window.WzMenuStyle && window.WzMenuStyle.status) {
+                  window.WzMenuStyle.status(/^ok/.test(r) ? 'The menu is showing your picture (' + r.slice(3) + ').' : (r === 'nofn' ? 'Open the Mod Menu once so it can load the picture.' : 'The menu could not read this picture (' + r + '). Try a different one.'));
+                }
+              }, () => {}); } catch (e) {} };
+              setTimeout(ask, 1500); setTimeout(ask, 4000);
+            }
+            wv.executeJavaScript("(function(){try{" + find + "l[i].bjSetSkinImage('" + img + "');return true;}}}catch(e){}return false;})()").catch(() => {});
+          }
+        } catch (e) {}
+      };
+      setInterval(() => { this._bjPushSkin(); }, 5000);
+      window.addEventListener('bj-menuskin-change', () => { setTimeout(() => { this._bjPushSkin(); }, 120); });
 
-      this._webviewReady = false;
+      document.addEventListener('mod-menu-toggle', () => {
+        const wv = this.webViewElem;
+        if (!wv) return;
+        const pressF10 = () => {
+          try { wv.focus(); } catch (e) {}
+          setTimeout(() => {
+            try {
+              wv.sendInputEvent({ type: 'keyDown', keyCode: 'F10' });
+              wv.sendInputEvent({ type: 'keyUp', keyCode: 'F10' });
+            } catch (e) {}
+          }, 60);
+        };
+        try { this._bjPushTheme(); } catch (e) {}
+        // First try asking the game directly (works even when the game window is not clicked).
+        // If the game file does not have that command, press F10 instead.
+        let p = null;
+        try {
+          p = wv.executeJavaScript(
+            "(function(){try{var l=document.querySelectorAll('embed,object');" +
+            "for(var i=0;i<l.length;i++){if(typeof l[i].bjToggleModMenu==='function'){l[i].bjToggleModMenu();return true;}}}catch(e){}return false;})()"
+          );
+        } catch (e) { p = null; }
+        if (p && p.then) p.then((ok) => { if (!ok) pressF10(); }, pressF10);
+        else pressF10();
+      });
+
+      this._webviewReady = false; this._bjSkinKey = null; this._bjImgKey = null;
       this._pendingDevToolsToggle = false;
 
       this.gameFrameElem = this.shadowRoot.getElementById("game-frame-container");
+      this._applyGameBorder(window.GameBorder ? window.GameBorder.load() : null);
+      document.addEventListener('game-border-changed', (e) => {
+        this._applyGameBorder(e.detail);
+      });
 
       this._boundLogoutHandler = () => {
         this.closeGame();
@@ -439,7 +631,7 @@
       this.webViewElem.classList.remove("hidden");
       this.webViewElem.src = globals.config.gameWebClient;
       this.webViewElem.addEventListener("dom-ready", () => {
-        this._webviewReady = true;
+        this._webviewReady = true; this._bjSkinKey = null; this._bjImgKey = null; this._bjLastTheme = "";
         if (this._pendingDevToolsToggle) {
           this._pendingDevToolsToggle = false;
           this.webViewElem.openDevTools({ mode: 'detach' });
@@ -480,9 +672,50 @@
       }, {once: true});
     }
 
+    _applyGameBorder(config) {
+      if (!this.gameFrameElem) return;
+      const sides = ['top', 'right', 'bottom', 'left'];
+      const enabled = config && config.enabled;
+      for (const side of sides) {
+        const value = enabled ? ((config.sides && config.sides[side]) || config.all) : null;
+        if (value) this.gameFrameElem.style.setProperty(`--border-${side}`, value);
+        else this.gameFrameElem.style.removeProperty(`--border-${side}`);
+      }
+      // Fill the whole frame (including corners) so no dark gaps show around the game.
+      this.gameFrameElem.style.background = enabled ? config.all : '';
+      // Banana Jam: fill the whole window (no border)
+      const fill = !!(config && config.fill);
+      this.gameFrameElem.classList.toggle('wz-fill', fill);
+      // (a moment later: a page element may not have its style touched while it is still being created)
+      setTimeout(() => {
+        if (fill) {
+          this.style.setProperty('--game-width', '100vw');
+          this.style.setProperty('--game-height', '100vh');
+        } else {
+          this.style.removeProperty('--game-width');
+          this.style.removeProperty('--game-height');
+        }
+      }, 0);
+      // Banana Jam: optional border picture, with blur on/off
+      const image = enabled && config.image && /^data:image\/[a-z+]+;base64,[A-Za-z0-9+/=]+$/.test(config.image) ? config.image : null;
+      this.gameFrameElem.classList.toggle('wz-has-image', !!image);
+      const blurPx = typeof config.blur === 'number' ? config.blur : (config.blur === true ? 16 : 0);
+      this.gameFrameElem.classList.toggle('wz-blur', !!image && blurPx > 0);
+      this.gameFrameElem.style.setProperty('--wz-border-blur', `${blurPx}px`);
+      const zoom = (typeof config.zoom === 'number' ? config.zoom : 100) / 100;
+      const fs = this.gameFrameElem.style;
+      fs.setProperty('--wz-border-scale', String(zoom * (blurPx > 0 ? 1.08 : 1)));
+      fs.setProperty('--wz-border-x', `${typeof config.x === 'number' ? config.x : 50}%`);
+      fs.setProperty('--wz-border-y', `${typeof config.y === 'number' ? config.y : 50}%`);
+      fs.setProperty('--wz-border-sx', config.mirror ? '-1' : '1');
+      fs.setProperty('--wz-border-sy', config.flip ? '-1' : '1');
+      if (image) this.gameFrameElem.style.setProperty('--wz-border-image', `url("${image}")`);
+      else this.gameFrameElem.style.removeProperty('--wz-border-image');
+    }
+
     _initModMenuButton() {
       if (!this.modMenuBtn) return;
-      this.modMenuBtn.style.display = localStorage.getItem('showModMenuButton') === 'true' ? 'flex' : 'none';
+      this.modMenuBtn.style.display = 'none';
     }
 
     reloadGame() {
@@ -507,7 +740,7 @@
     }
 
     resetWebView() {
-      this._webviewReady = false;
+      this._webviewReady = false; this._bjSkinKey = null; this._bjImgKey = null;
       if (this.webViewElem) {
         const loadPromise = this.webViewElem.loadURL ? this.webViewElem.loadURL(this.blankPageString) : null;
         if (loadPromise) loadPromise.catch(() => {});

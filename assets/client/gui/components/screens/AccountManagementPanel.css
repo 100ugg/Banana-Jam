@@ -200,3 +200,113 @@
 .custom-context-menu ul li.separator:hover {
   background-color: #eee; /* Separator shouldn't change color on hover */
 }
+
+/* ================= Banana Jam: accounts as a row inside the login card ================= */
+#panel-container,
+:host(.dark-mode) #panel-container {
+  flex-direction: row !important;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 2px 4px 6px !important;
+  max-height: none !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  background: none !important;
+  background-image: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+#panel-container::-webkit-scrollbar { height: 4px; width: 4px; }
+
+.account-add-button {
+  width: auto !important;
+  height: 32px !important;
+  padding: 0 12px;
+  gap: 6px;
+  margin-bottom: 0 !important;
+  border-radius: 16px !important;
+  border-width: 1.5px !important;
+  font-size: 16px !important;
+  white-space: nowrap;
+}
+.account-add-button::after {
+  content: "Save account";
+  font-family: CCDigitalDelivery, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+#saved-accounts-list {
+  flex-direction: row !important;
+  width: auto !important;
+  gap: 8px;
+  align-items: center;
+}
+.saved-account-slot {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 13px !important;
+  margin-bottom: 0 !important;
+}
+.saved-account-slot.empty { display: none !important; }
+
+/* ================= Banana Jam: Vista look for the account row ================= */
+.account-add-button {
+  border: 1px solid #707070 !important;
+  border-style: solid !important;
+  border-radius: 3px !important;
+  background: linear-gradient(180deg, #f6f6f6 0%, #ebebeb 48%, #dddddd 50%, #cfcfcf 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.75) !important;
+  color: #1e1e1e !important;
+}
+.account-add-button:hover {
+  background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 48%, #bee6fd 50%, #a7d9f5 100%) !important;
+  border-color: #3c7fb1 !important;
+}
+.saved-account-slot:not(.empty) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.15) 49%, rgba(0, 0, 0, 0.06) 50%, rgba(255, 255, 255, 0.12) 100%),
+    var(--theme-secondary, rgba(232, 61, 82, 0.3)) !important;
+  border: 1px solid rgba(0, 0, 0, 0.35) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ================= Banana Jam: Modern look ================= */
+:host-context(.wz-style-modern) .account-add-button {
+  background: var(--wz-field, #ffffff) !important; border: 1px solid var(--wz-field-border, rgba(0, 0, 0, 0.14)) !important;
+  border-radius: 8px !important; box-shadow: none !important; color: var(--wz-text, #222) !important;
+}
+:host-context(.wz-style-modern) .account-add-button:hover { background: rgba(128, 128, 128, 0.14) !important; }
+:host-context(.wz-style-modern) .saved-account-slot:not(.empty) {
+  background: var(--theme-secondary, rgba(232, 61, 82, 0.3)) !important; border: 1px solid transparent !important; box-shadow: none;
+}
+
+/* ================= Banana Jam: Bubble look (soft, shiny 3D with a glow) ================= */
+:host-context(.wz-style-bubble) .account-add-button {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f6f6 50%, #ebebeb 51%, #f4f4f4 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 999px !important; color: #4a4a4a !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 -3px 5px rgba(0, 0, 0, 0.06), 0 3px 8px rgba(0, 0, 0, 0.12), 0 0 12px var(--theme-secondary, rgba(255, 255, 255, 0.4)) !important;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+:host-context(.wz-style-bubble) .account-add-button:hover { transform: translateY(-1px) scale(1.03); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.14), 0 0 18px var(--theme-secondary, rgba(255, 255, 255, 0.5)) !important; }
+:host-context(.wz-style-bubble) .saved-account-slot:not(.empty) {
+  background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 60%), var(--theme-secondary, rgba(232, 61, 82, 0.3)) !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.14), 0 0 12px var(--theme-secondary, rgba(255, 255, 255, 0.4));
+}
+
+/* ================= Banana Jam: Comic look (soft 2D cartoon) ================= */
+:host-context(.wz-style-comic) .account-add-button {
+  background: var(--wz-field, #ffffff) !important; text-shadow: none;
+  border: 2px solid #3b2f2f !important; border-radius: 10px !important; color: #3b2f2f !important;
+  box-shadow: 2px 2px 0 #3b2f2f !important; transition: transform .1s ease, box-shadow .1s ease;
+}
+:host-context(.wz-style-comic) .account-add-button:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #3b2f2f !important; background: var(--theme-secondary, #ffffff) !important; }
+:host-context(.wz-style-comic) .account-add-button:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #3b2f2f !important; }
+:host-context(.wz-style-comic) .saved-account-slot:not(.empty) {
+  background: var(--theme-secondary, rgba(232, 61, 82, 0.3)) !important;
+  border: 2px solid #3b2f2f !important; box-shadow: 2px 2px 0 #3b2f2f;
+}

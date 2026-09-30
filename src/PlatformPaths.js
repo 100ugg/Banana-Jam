@@ -22,9 +22,9 @@ const getWineAjClassicPath = (winePrefix) => {
 const getWineStrawberryJamPath = (winePrefix) => {
   const driveC = path.join(winePrefix, 'drive_c')
   const possiblePaths = [
-    path.join(driveC, 'users', os.userInfo().username, 'AppData', 'Local', 'Programs', 'strawberry-jam-classic'),
-    path.join(driveC, 'users', os.userInfo().username, 'Local Settings', 'Application Data', 'Programs', 'strawberry-jam-classic'),
-    path.join(driveC, 'Program Files', 'strawberry-jam-classic')
+    path.join(driveC, 'users', os.userInfo().username, 'AppData', 'Local', 'Programs', 'bananajam-classic'),
+    path.join(driveC, 'users', os.userInfo().username, 'Local Settings', 'Application Data', 'Programs', 'bananajam-classic'),
+    path.join(driveC, 'Program Files', 'bananajam-classic')
   ]
   return possiblePaths.find(p => fs.existsSync(p)) || possiblePaths[0]
 }
@@ -85,10 +85,10 @@ const detectCompatibilityLayer = () => {
 
 const getStrawberryJamClassicBasePath = (compatLayer, winePrefix) => {
   if (platform === 'win32') {
-    return path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'strawberry-jam-classic')
+    return path.join(os.homedir(), 'AppData', 'Local', 'Programs', 'bananajam-classic')
   }
   if (platform === 'darwin') {
-    return path.join('/', 'Applications', 'Strawberry Jam Classic.app', 'Contents')
+    return path.join('/', 'Applications', 'Banana Jam Classic.app', 'Contents')
   }
 
   if (compatLayer && compatLayer !== 'none') {
@@ -96,7 +96,7 @@ const getStrawberryJamClassicBasePath = (compatLayer, winePrefix) => {
     return getWineStrawberryJamPath(prefix)
   }
 
-  return path.join(os.homedir(), '.local', 'share', 'strawberry-jam-classic')
+  return path.join(os.homedir(), '.local', 'share', 'bananajam-classic')
 }
 
 const getAnimalJamClassicBasePath = (compatLayer, winePrefix) => {
@@ -137,16 +137,16 @@ const getAnimalJamClassicCachePath = (compatLayer, winePrefix) => {
 
 const getStrawberryJamClassicCachePath = (compatLayer, winePrefix) => {
   if (platform === 'win32') {
-    return path.join(os.homedir(), 'AppData', 'Roaming', 'strawberry-jam-classic', 'Cache')
+    return path.join(os.homedir(), 'AppData', 'Roaming', 'bananajam-classic', 'Cache')
   }
   if (platform === 'darwin') {
-    return path.join(os.homedir(), 'Library', 'Application Support', 'Strawberry Jam Classic', 'Cache')
+    return path.join(os.homedir(), 'Library', 'Application Support', 'Banana Jam Classic', 'Cache')
   }
   if (compatLayer && compatLayer !== 'none') {
     const prefix = detectWinePrefix(winePrefix)
-    return path.join(prefix, 'drive_c', 'users', os.userInfo().username, 'AppData', 'Roaming', 'strawberry-jam-classic', 'Cache')
+    return path.join(prefix, 'drive_c', 'users', os.userInfo().username, 'AppData', 'Roaming', 'bananajam-classic', 'Cache')
   }
-  return path.join(os.homedir(), '.cache', 'strawberry-jam-classic')
+  return path.join(os.homedir(), '.cache', 'bananajam-classic')
 }
 
 const getGameExecutablePath = (basePath, compatLayer) => {
@@ -164,7 +164,11 @@ const getGameExecutablePath = (basePath, compatLayer) => {
 
 const getBundledPluginsPath = (dirname) => {
   if (platform === 'win32') {
-    return path.resolve('plugins/')
+    // Banana Jam: use ./plugins when running from source, otherwise the plugins
+    // folder that the installer puts next to Banana Jam.exe
+    const cwdPlugins = path.resolve('plugins/')
+    if (fs.existsSync(cwdPlugins)) return cwdPlugins
+    return path.join(path.dirname(process.execPath), 'plugins')
   }
   return path.join(dirname, '..', '..', '..', '..', '..', '..', '..', 'plugins/')
 }
@@ -186,7 +190,7 @@ const getBusyProcessErrorMessage = () => {
 
 const getPermissionErrorMessage = () => {
   if (platform === 'win32') {
-    return 'It seems like you installed Strawberry Jam in C:\\Program Files instead of C:\\Users\\User\\AppData\\Local\\Programs\\. Rerun the setup and change the installation location.'
+    return 'It seems like you installed Banana Jam in C:\\Program Files instead of C:\\Users\\User\\AppData\\Local\\Programs\\. Rerun the setup and change the installation location.'
   }
   return 'Permission denied. Check that the application has write access to the installation directory.'
 }

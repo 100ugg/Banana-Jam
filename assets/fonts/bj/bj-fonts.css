@@ -1,0 +1,14 @@
+/* Banana Jam: fonts that come with the app (all free to use, see LICENSES.txt) */
+@font-face { font-family: 'Nunito'; src: url('nunito.woff') format('woff'); font-weight: 200 1000; font-display: swap; }
+@font-face { font-family: 'Fredoka'; src: url('fredoka.woff') format('woff'); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: 'Comic Neue'; src: url('comicneue-400.woff') format('woff'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Comic Neue'; src: url('comicneue-700.woff') format('woff'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Atkinson Hyperlegible'; src: url('atkinson-400.woff') format('woff'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Atkinson Hyperlegible'; src: url('atkinson-700.woff') format('woff'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Lexend'; src: url('lexend.woff') format('woff'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Andika'; src: url('andika-400.woff') format('woff'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Andika'; src: url('andika-700.woff') format('woff'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('poppins-400.woff') format('woff'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('poppins-700.woff') format('woff'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'OpenDyslexic'; src: url('opendyslexic-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'OpenDyslexic'; src: url('opendyslexic-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }

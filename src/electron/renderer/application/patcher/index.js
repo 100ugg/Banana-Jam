@@ -90,7 +90,7 @@ module.exports = class Patcher {
   async ensureStrawberryJamVersionExists(paths) {
     try {
       if (!existsSync(paths.sjBase)) {
-        const message = 'Creating Strawberry Jam Classic installation (this only happens once)...'
+        const message = 'Creating Banana Jam Classic installation (this only happens once)...'
         if (this._application) {
           this._application.consoleMessage({ message, type: 'wait' })
         } else {
@@ -107,7 +107,7 @@ module.exports = class Patcher {
         }
 
         try {
-          const copyMessage = 'Copying Animal Jam files to Strawberry Jam directory...'
+          const copyMessage = 'Copying Animal Jam files to Banana Jam directory...'
           if (this._application) {
             this._application.consoleMessage({ message: copyMessage, type: 'wait' })
           } else {
@@ -141,7 +141,7 @@ module.exports = class Patcher {
 
         await this.patchCustomInstallation(paths)
 
-        const completedMessage = 'Strawberry Jam Classic installation created successfully!'
+        const completedMessage = 'Banana Jam Classic installation created successfully!'
         if (this._application) {
           this._application.consoleMessage({ message: completedMessage, type: 'success' })
         } else {
@@ -149,7 +149,7 @@ module.exports = class Patcher {
         }
       }
     } catch (error) {
-      const errorMsg = `Failed to create Strawberry Jam Classic: ${error.message}`
+      const errorMsg = `Failed to create Banana Jam Classic: ${error.message}`
       if (this._application) {
         this._application.consoleMessage({ message: errorMsg, type: 'error' })
       } else {
@@ -228,7 +228,7 @@ module.exports = class Patcher {
         console.log(successMessage)
       }
     } catch (error) {
-      const errorMsg = `Failed to patch Strawberry Jam Classic: ${error.message}`
+      const errorMsg = `Failed to patch Banana Jam Classic: ${error.message}`
       if (this._application) {
         this._application.consoleMessage({ message: errorMsg, type: 'error' })
       } else {

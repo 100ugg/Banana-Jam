@@ -584,7 +584,7 @@ class Electron {
       const choice = await dialog.showMessageBox(this._window, {
         type: 'warning',
         title: 'Multiple Instances Detected',
-        message: `It looks like another Strawberry Jam window is open.\n\nPlease close all other Strawberry Jam windows before attempting to ${actionDescription}.`,
+        message: `It looks like another Banana Jam window is open.\n\nPlease close all other Banana Jam windows before attempting to ${actionDescription}.`,
         buttons: ['Cancel', 'I have closed other windows'],
         defaultId: 0, 
         cancelId: 0
@@ -748,6 +748,8 @@ class Electron {
     this._patcher = new Patcher(null, getAssetsPath(app));
     const windowOptions = {
       ...defaultWindowOptions,
+      // Banana Jam: start on the saved Light / Dark colour, so nothing else flashes while loading
+      backgroundColor: require('../utils/bjShared').startColour(app, 'launcher'),
       icon: path.join(getAssetsPath(app), 'images', 'icon.png')
     };
     
@@ -879,6 +881,17 @@ class Electron {
       this._apiProcess.on('message', (message) => {
         if (message && message.type === 'api-port' && message.port) {
           this._apiPort = message.port
+        }
+      });
+
+      // Banana Jam: the in-game Mod Menu asks for the plugin list / open / close
+      this._apiProcess.on('message', (message) => {
+        if (message && message.type === 'bj-plugins' && typeof message.id === 'number') {
+          if (this._window && !this._window.isDestroyed() && this._window.webContents) {
+            this._window.webContents.send('bj-plugins-request', { id: message.id, action: message.action, name: message.name })
+          } else if (this._apiProcess && !this._apiProcess.killed) {
+            this._apiProcess.send({ type: 'bj-plugins-reply', id: message.id, data: { success: false } })
+          }
         }
       });
 

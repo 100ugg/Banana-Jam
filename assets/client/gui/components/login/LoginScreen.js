@@ -72,7 +72,8 @@
       
       this.uuidSpooferToggle = this.shadowRoot.getElementById("uuid-spoofer-toggle");
       this.backgroundProcessingToggle = this.shadowRoot.getElementById("background-processing-toggle");
-      this.modMenuBtnToggle = this.shadowRoot.getElementById("mod-menu-btn-toggle");
+      this.fastModeToggle = this.shadowRoot.getElementById("fast-mode-toggle");
+      this.gameUiToggle = this.shadowRoot.getElementById("game-ui-toggle");
       this.darkModeToggle = this.shadowRoot.getElementById("dark-mode-toggle");
       this.showImportAccountsToggle = this.shadowRoot.getElementById("show-import-accounts-toggle");
       this.showWheelAutomationToggle = this.shadowRoot.getElementById("show-wheel-automation-toggle");
@@ -127,7 +128,21 @@
       this.settingsInitializer = new window.LoginScreenSettingsInitializer(this, this.themeManager, this.uiManager);
       this.eventHandler = new window.LoginScreenEventHandler(this, this.authManager, this.themeManager, this.uiManager);
 
-      this.themeManager.setupFruitRotation();
+      // Banana Jam: each extra is set up on its own, so if one goes wrong
+      // the login screen still draws and the rest still work.
+      const safely = (name, fn) => {
+        try { fn(); } catch (e) { console.error('[Banana Jam] ' + name + ' failed:', e); }
+      };
+      safely('fruit rotation', () => this.themeManager.setupFruitRotation());
+      safely('theme parts', () => this.themeManager.setupThemePartsControls());
+      safely('background picture', () => this.themeManager.setupBorderImageControls());
+      safely('presets', () => this.themeManager.setupPresetsControls());
+      safely('custom icons', () => this.themeManager.setupCustomIcons());
+      safely('style', () => this.themeManager.setupStyleControls());
+      safely('reset buttons', () => this.themeManager.setupResetButtons());
+      safely('fonts', () => this.themeManager.setupFontControls());
+      safely('shared colours', () => this.themeManager.setupShareControls());
+      safely('colour wheel', () => { if (window.WzColorPicker) window.WzColorPicker.attach(this.shadowRoot); });
       this.eventHandler.setupEventListeners();
 
       this.settingsInitializer._initializeAllSettings().then(() => {
@@ -201,7 +216,7 @@
     get version() { return this._version; }
     set version(val) {
       this._version = val;
-      this.versionLinkElem.innerHTML = `v${val}`;
+      this.versionLinkElem.innerHTML = 'Banana Jam v0.7.0';
     }
     setProgress(progress) {
       if (progress === null) {

@@ -90,7 +90,7 @@ class PortChecker {
 
   /**
    * Checks if a process name matches the current application's process.
-   * Handles both development (electron.exe) and production (strawberry-jam.exe) builds.
+   * Handles both development (electron.exe) and production (Banana Jam.exe) builds.
    * @param {string} processName - The process name to check
    * @returns {boolean} True if the process name matches the current application
    */
@@ -109,7 +109,7 @@ class PortChecker {
       return true
     }
 
-    if (currentProcess.includes('strawberry-jam') && detectedProcess === 'strawberry-jam') {
+    if ((currentProcess.includes('wizjam') && detectedProcess === 'wizjam') || (currentProcess.includes('strawberry-jam') && detectedProcess === 'strawberry-jam')) {
       return true
     }
 

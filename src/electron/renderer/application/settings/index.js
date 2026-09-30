@@ -84,10 +84,10 @@ const DEFAULT_SETTINGS = {
   'logs.networkLimit': 500,
 
   // Custom theme color settings
-  'ui.customThemeColor': null,
-  'ui.customThemeEnabled': false,
-  'ui.customThemeName': null,
-  'ui.customThemeFruit': null,
+  'ui.customThemeColor': '#5a67e8',
+  'ui.customThemeEnabled': true,
+  'ui.customThemeName': 'Banana Jam',
+  'ui.customThemeFruit': 'banana.png',
 
   // Tutorial settings
   'ui.tutorialCompleted': false,

@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Colour</title>
+  <style>
+    @font-face { font-family: 'CCDigitalDelivery'; src: url("fonts/digital-delivery/CCDigitalDeliveryRegular.woff"); }
+    html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+    /* room for the window's soft shadow */
+    body { padding: 8px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <script src="components/util/WzStyle.js"></script>
+  <script src="components/util/WzColorPicker.js"></script>
+  <script>
+    (function () {
+      let opts = {};
+      try { opts = JSON.parse(decodeURIComponent(location.hash.slice(1))) || {}; } catch (e) {}
+      // share the app's colours (card, fields, text, border) so it matches the menus
+      const vars = opts.vars || {};
+      Object.keys(vars).forEach((k) => { if (/^--[a-z-]+$/.test(k)) document.documentElement.style.setProperty(k, vars[k]); });
+      const style = document.createElement('style');
+      style.textContent = window.WzColorPicker.STYLE;
+      document.head.appendChild(style);
+      const bridge = window.wzPickerBridge || { color() {}, close() { window.close(); }, size() {} };
+      const input = {
+        value: /^#[0-9a-f]{6}$/i.test(opts.color || '') ? opts.color : '#e83d52',
+        disabled: false,
+        dispatchEvent(ev) { bridge.color(this.value, ev && ev.type === 'change', this.__wzCancelled === true); return true; }
+      };
+      const box = window.WzColorPicker.open(document.body, input, {
+        standalone: true,
+        prefs: opts.prefs,
+        style: opts.style,
+        appDark: opts.appDark,
+        onClosed: () => bridge.close()
+      });
+      // make the window exactly fit the picker
+      const fit = () => {
+        const r = box.getBoundingClientRect();
+        if (bridge.size) bridge.size(Math.ceil(r.width) + 16, Math.ceil(r.height) + 16);
+      };
+      fit();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    })();
+  </script>
+</body>
+</html>

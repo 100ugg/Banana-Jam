@@ -15,7 +15,9 @@ exports.render = function (app) {
   const GITHUB_API_URLS = [
     { url: 'https://api.github.com/repos/glvckoma/strawberry-jam/contents/plugins', repo: 'strawberry-jam' }
   ]
-  const LOCAL_PLUGINS_DIR = path.resolve('plugins/')
+  const LOCAL_PLUGINS_DIR = require('../../../../PlatformPaths').getBundledPluginsPath(__dirname)
+  // Banana Jam: plugins left out of the store on purpose
+  const HIDDEN_STORE_PLUGINS = ['UsernameLogger']
 
   const getUserPluginsPath = async () => {
     const electron = require('electron')
@@ -607,6 +609,7 @@ exports.render = function (app) {
 
     const pluginPromises = plugins
       .filter(plugin => plugin.type === 'dir')
+      .filter(plugin => !HIDDEN_STORE_PLUGINS.includes(plugin.name))
       .map(async plugin => ({
         plugin,
         installed: await isPluginInstalled(plugin.name),

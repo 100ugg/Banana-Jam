@@ -429,7 +429,7 @@ class ConsoleManager {
       if (type === 'notify' && (message.includes('reapplied') || message.includes('closed') || message.includes('Console logs cleared'))) {
         return true
       }
-      if (type === 'success' && message.includes('Successfully launched Strawberry Jam Classic')) {
+      if (type === 'success' && message.includes('Successfully launched Banana Jam Classic')) {
         return true
       }
     }

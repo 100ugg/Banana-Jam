@@ -535,5 +535,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('beforeunload', stopAdvertising);
 
+  // the Mod Menu's On/Off switch for this plugin: On starts advertising, Off stops it
+  window.bjPluginStart = async function () { await startAdvertising(); return isActive; };
+  window.bjPluginStop = function () { stopAdvertising(); return true; };
+
   loadState();
 });

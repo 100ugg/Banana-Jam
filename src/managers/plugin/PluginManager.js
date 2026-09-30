@@ -62,6 +62,27 @@ class PluginManager {
     return result
   }
 
+  // background plugins can be switched off (from the Mod Menu's Plugins tab); the list is kept in a small file
+  _disabledFile() {
+    return path.join(String(this.dataPath || '.'), 'bj-disabled-plugins.json')
+  }
+
+  getDisabledPlugins() {
+    try {
+      const list = JSON.parse(require('fs').readFileSync(this._disabledFile(), 'utf8'))
+      return new Set(Array.isArray(list) ? list : [])
+    } catch (e) { return new Set() }
+  }
+
+  setPluginDisabled(name, disabled) {
+    if (!this.dataPath) return
+    const set = this.getDisabledPlugins()
+    if (disabled) set.add(name); else set.delete(name)
+    const fsSync = require('fs')
+    fsSync.mkdirSync(path.dirname(this._disabledFile()), { recursive: true })
+    fsSync.writeFileSync(this._disabledFile(), JSON.stringify(Array.from(set)))
+  }
+
   async installDependencies(configuration) {
     const { dependencies } = configuration
 
@@ -153,7 +174,7 @@ class PluginManager {
 
     try {
       let pluginInstance = null
-      if (configuration.type === 'game') {
+      if (configuration.type === 'game' && !this.getDisabledPlugins().has(configuration.name)) {
         const PluginClass = require(path.join(filepath, configuration.main))
         pluginInstance = new PluginClass({
           application: this._application,

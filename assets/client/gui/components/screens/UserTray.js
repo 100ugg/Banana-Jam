@@ -162,12 +162,9 @@
 
     updateTheme(theme) {
       if (!theme) return;
-      this.style.setProperty('--theme-primary', theme.primary);
-      this.style.setProperty('--theme-secondary', theme.secondary);
-      this.style.setProperty('--theme-hover-border', theme.hoverBorder);
-      this.style.setProperty('--theme-shadow', theme.shadow);
+      // Banana Jam: accent colours come from the theme's In-Game UI colour (--wz-ui),
+      // set in UserTray.css; only the box background follows the login theme.
       this.style.setProperty('--theme-box-background', theme.boxBackground);
-      this.style.setProperty('--theme-settings-hover', theme.settingsHover);
     }
   });
 

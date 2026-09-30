@@ -17,33 +17,17 @@ class SettingsSaver {
       const selectedSwfFile = $modal.find('#selectedSwfFile').val();
       const swfFileChanged = initialSwfFile !== selectedSwfFile;
 
-      const { normalizeHexColor } = require('../../utils/ColorUtils');
-      const customThemeColorInput = $modal.find('#customThemeColorInput').val().trim();
-      const normalizedColor = normalizeHexColor(customThemeColorInput) || '#e83d52';
-      const customThemeName = $modal.find('#customThemeNameInput').val().trim() || 'Custom Jam';
-      const customThemeFruit = $modal.find('#customThemeFruitSelect').val() || 'strawberry.png';
+      // Banana Jam: the launcher theme saves itself (assets/scripts/bj-launcher-theme.js)
 
       const settingsToSave = [
         { key: 'network.smartfoxServer', value: $modal.find('#advancedSmartfoxServer').val() },
         { key: 'network.secureConnection', value: $modal.find('#advancedSecureConnection').is(':checked') },
-        { key: 'plugins.usernameLogger.apiKey', value: $modal.find('#leakCheckApiKey').val() },
-        { key: 'plugins.usernameLogger.autoCheck.enabled', value: (parseInt($modal.find('#leakCheckThreshold').val()) || 0) > 0 },
-        { key: 'plugins.usernameLogger.autoCheck.threshold', value: parseInt($modal.find('#leakCheckThreshold').val()) || 0 },
-        { key: 'plugins.usernameLogger.collection.enabled', value: $modal.find('#leakCheckEnableLogging').is(':checked') },
-        { key: 'plugins.usernameLogger.collection.collectNearby', value: $modal.find('#leakCheckCollectNearby').is(':checked') },
-        { key: 'plugins.usernameLogger.collection.collectBuddies', value: $modal.find('#leakCheckCollectBuddies').is(':checked') },
-        { key: 'plugins.usernameLogger.outputDir', value: $modal.find('#leakCheckOutputDirInput').val().trim() },
-        { key: 'plugins.usernameLogger.maxPasswordsPerAccount', value: parseInt($modal.find('#leakCheckMaxPasswords').val()) || 0 },
         { key: 'ui.performServerCheckOnLaunch', value: $modal.find('#performServerCheckOnLaunchToggle').is(':checked') },
         { key: 'dev-log.performServerCheckOnLaunch', value: $modal.find('#performServerCheckOnLaunchToggle').is(':checked') },
         { key: 'updates.enableAutoUpdates', value: $modal.find('#enableAutoUpdatesToggle').is(':checked') },
         { key: 'game.selectedSwfFile', value: selectedSwfFile },
         { key: 'ui.militaryTime', value: $modal.find('#militaryTimeToggle').is(':checked') },
-        { key: 'ui.allowMultipleInstances', value: $modal.find('#allowMultipleInstancesToggle').is(':checked') },
-        { key: 'ui.customThemeColor', value: normalizedColor },
-        { key: 'ui.customThemeEnabled', value: $modal.find('#customThemeEnabledToggle').is(':checked') },
-        { key: 'ui.customThemeName', value: customThemeName },
-        { key: 'ui.customThemeFruit', value: customThemeFruit }
+        { key: 'ui.allowMultipleInstances', value: $modal.find('#allowMultipleInstancesToggle').is(':checked') }
       ];
 
       if (process.platform === 'linux') {
@@ -98,18 +82,7 @@ class SettingsSaver {
           this.toastService.showInModal($modal, 'Settings saved successfully!', 'success');
         }
         
-        const customThemeEnabled = $modal.find('#customThemeEnabledToggle').is(':checked');
-        const customThemeColor = normalizeHexColor($modal.find('#customThemeColorInput').val().trim()) || '#e83d52';
-        const customThemeName = $modal.find('#customThemeNameInput').val().trim() || 'Custom Jam';
-        const customThemeFruit = $modal.find('#customThemeFruitSelect').val() || 'strawberry.png';
-        
-        if (window.applyCustomColorTheme && window.restoreFruitTheme) {
-          if (customThemeEnabled) {
-            window.applyCustomColorTheme(customThemeColor, customThemeName, customThemeFruit);
-          } else {
-            window.restoreFruitTheme();
-          }
-        }
+        if (window.BJTheme) window.BJTheme.apply();
         
         app.modals.close();
       } else {

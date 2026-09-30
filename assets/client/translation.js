@@ -83,11 +83,11 @@ const translations = {
     pt: "redefinição de senha",
   },
   playerLogin: {
-    en: "Strawberry Jam",
-    fr: "Confiture de fraise",
-    de: "Erdbeermarmelade",
-    es: "Mermelada de fresa",
-    pt: "Geleia de morango",
+    en: "Banana Jam",
+    fr: "Banana Jam",
+    de: "Banana Jam",
+    es: "Banana Jam",
+    pt: "Banana Jam",
   },
   submit: {
     en: "submit",

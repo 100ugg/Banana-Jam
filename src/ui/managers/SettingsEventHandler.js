@@ -481,7 +481,7 @@ class SettingsEventHandler {
         console.error('Error getting cache sizes:', error);
       }
 
-      const message = 'Are you sure you want to clear the selected cache types? Strawberry Jam will close to complete the process.';
+      const message = 'Are you sure you want to clear the selected cache types? Banana Jam will close to complete the process.';
 
       const confirmed = await uiManager.showConfirmationModal(
         'Clear Cache Confirmation',
@@ -510,7 +510,7 @@ class SettingsEventHandler {
     $uninstallButton.on('click', async () => {
       const confirmed = await uiManager.showConfirmationModal(
         'Uninstall Confirmation',
-        'Are you absolutely sure you want to uninstall Strawberry Jam? This will remove the application and cannot be undone. Strawberry Jam will close to start the uninstaller.',
+        'Are you absolutely sure you want to uninstall Banana Jam? This will remove the application and cannot be undone. Banana Jam will close to start the uninstaller.',
         'Close App & Uninstall',
         'Cancel'
       );
@@ -528,32 +528,6 @@ class SettingsEventHandler {
         }
       }
     });
-
-    $modal.find('#restartTutorialBtn').on('click', async () => {
-      if (app) {
-        try {
-          const TutorialManager = require('./TutorialManager')
-          let tutorialManager = app.tutorialManager
-          
-          if (!tutorialManager) {
-            tutorialManager = new TutorialManager(app)
-            await tutorialManager.initialize()
-            app.tutorialManager = tutorialManager
-          }
-          
-          await tutorialManager.resetTutorial()
-          app.modals.close()
-          setTimeout(() => {
-            if (tutorialManager) {
-              tutorialManager.startTutorial()
-            }
-          }, 300)
-        } catch (error) {
-          console.error('Error restarting tutorial:', error)
-          this.toastService.showInModal($modal, `Failed to restart tutorial: ${error.message}`, 'error')
-        }
-      }
-    })
 
     const $checkForUpdatesBtn = $modal.find('#checkForUpdatesBtn');
     const $downloadUpdateBtn = $modal.find('#downloadUpdateBtn');

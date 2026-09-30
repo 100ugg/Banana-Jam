@@ -29,7 +29,7 @@ class GameLauncher {
         const allowMultipleInstances = await ipcRenderer.invoke('get-setting', 'ui.allowMultipleInstances')
 
         if (!allowMultipleInstances) {
-          this._showHeaderNotification('Strawberry Jam is already running', 'error')
+          this._showHeaderNotification('Banana Jam is already running', 'error')
           return
         }
 
@@ -38,7 +38,7 @@ class GameLauncher {
           type: 'notify'
         })
       } catch (error) {
-        this._showHeaderNotification('Strawberry Jam is already running', 'error')
+        this._showHeaderNotification('Banana Jam is already running', 'error')
         return
       }
     }
@@ -51,7 +51,7 @@ class GameLauncher {
 
     try {
       this.application.consoleMessage({
-        message: 'Starting Strawberry Jam Classic...',
+        message: 'Starting Banana Jam Classic...',
         type: 'wait',
         details: { messageId: startMessageId }
       })
@@ -73,7 +73,7 @@ class GameLauncher {
         await new Promise(resolve => setTimeout(resolve, 1000))
         this.application._removeMessageById(startMessageId)
         this.application.consoleMessage({
-          message: 'Successfully launched Strawberry Jam Classic!',
+          message: 'Successfully launched Banana Jam Classic!',
           type: 'success'
         })
       }
@@ -86,11 +86,11 @@ class GameLauncher {
             const allowMultipleInstances = await ipcRenderer.invoke('get-setting', 'ui.allowMultipleInstances')
             if (!allowMultipleInstances) {
               $btn.classList.add('opacity-100')
-              this._showHeaderNotification('Strawberry Jam is already running', 'error')
+              this._showHeaderNotification('Banana Jam is already running', 'error')
             }
           } catch (error) {
             $btn.classList.add('opacity-100')
-            this._showHeaderNotification('Strawberry Jam is already running', 'error')
+            this._showHeaderNotification('Banana Jam is already running', 'error')
           }
         }
       }
@@ -105,7 +105,7 @@ class GameLauncher {
     }
 
     this.application.consoleMessage({
-      message: 'Strawberry Jam Classic has closed. All plugins have been closed.',
+      message: 'Banana Jam Classic has closed. All plugins have been closed.',
       type: 'notify'
     })
   }

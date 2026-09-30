@@ -752,7 +752,7 @@ module.exports = class Client {
         if (!messageElement) continue;
         
         const successText = messageElement.textContent || '';
-        if (successText.includes('Successfully launched Strawberry Jam Classic')) {
+        if (successText.includes('Successfully launched Banana Jam Classic')) {
           const timestampElement = messageElement.querySelector('.text-xs.text-gray-500');
           if (!timestampElement) return true; 
           

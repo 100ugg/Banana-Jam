@@ -48,6 +48,46 @@ router.post('/api/aj-classic-close', (request, response) => {
 })
 
 /**
+ * Banana Jam: plugin list and open/close for the in-game Mod Menu.
+ * The game asks this route; the launcher does the work.
+ * A custom header is needed, so a normal web page cannot call it by accident.
+ * @public
+ */
+const bjPending = new Map()
+let bjSeq = 0
+process.on('message', (message) => {
+  if (message && message.type === 'bj-plugins-reply') {
+    const item = bjPending.get(message.id)
+    if (item) {
+      bjPending.delete(message.id)
+      clearTimeout(item.timer)
+      item.response.status(200).json(message.data || { success: false })
+    }
+  }
+})
+router.get('/crossdomain.xml', (request, response) => {
+  response.type('text/x-cross-domain-policy').send('<?xml version="1.0"?><cross-domain-policy><site-control permitted-cross-domain-policies="master-only"/><allow-access-from domain="*" secure="false"/><allow-http-request-headers-from domain="*" headers="X-BJ,Content-Type" secure="false"/></cross-domain-policy>')
+})
+router.post('/api/bj/plugins', (request, response) => {
+  if (request.get('X-BJ') !== '1') {
+    return response.status(403).json({ success: false })
+  }
+  const body = request.body || {}
+  const action = body.action
+  if ((action !== 'list' && action !== 'toggle') || !process.send) {
+    return response.status(400).json({ success: false })
+  }
+  const name = typeof body.name === 'string' ? body.name.slice(0, 120) : ''
+  const id = ++bjSeq
+  const timer = setTimeout(() => {
+    bjPending.delete(id)
+    response.status(504).json({ success: false })
+  }, 4000)
+  bjPending.set(id, { response, timer })
+  process.send({ type: 'bj-plugins', id, action, name })
+})
+
+/**
  * Animal Jam files route.
  * @public
  */

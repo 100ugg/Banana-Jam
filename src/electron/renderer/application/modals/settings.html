@@ -17,7 +17,7 @@
     <div class="flex items-center justify-center min-h-screen">
       <div class="modal-backdrop"></div>
 
-      <div class="modal-container max-w-md w-full">
+      <div class="modal-container max-w-3xl w-full">
         <div class="modal-header">
           <h3 class="modal-header-title">
             <i class="fas fa-cog modal-section-icon"></i>
@@ -37,16 +37,12 @@
             Theme
             <span class="tab-underline"></span>
           </button>
-          <button type="button" class="settings-tab modal-tab" data-tab="leakcheck">
-            LeakCheck
-            <span class="tab-underline"></span>
-          </button>
           <button type="button" class="settings-tab modal-tab" data-tab="advanced">
             Advanced
             <span class="tab-underline"></span>
           </button>
           <button type="button" class="settings-tab modal-tab" data-tab="about">
-            About
+            Credits
             <span class="tab-underline"></span>
           </button>
         </div>
@@ -57,37 +53,8 @@
 
             <div class="modal-setting-row py-3">
               <div class="flex-1 min-w-0">
-                <div class="text-sm text-text-primary font-medium">Automatic Updates</div>
-                <p class="text-xs text-gray-400 mt-0.5">Download and install updates automatically.</p>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-3">
-                <input type="checkbox" id="enableAutoUpdatesToggle" class="sr-only peer">
-                <div class="toggle-switch"></div>
-              </label>
-            </div>
-
-            <div class="py-3" style="border-top: 1px solid rgba(156,163,175,0.1);">
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="viewUpdatesBtn" class="modal-btn-success text-sm">
-                  <i class="fas fa-list mr-1.5"></i>View Updates
-                </button>
-                <button type="button" id="checkForUpdatesBtn" class="modal-btn-secondary text-sm">
-                  <i class="fas fa-search mr-1.5"></i>Check for Updates
-                </button>
-              </div>
-              <button type="button" id="downloadUpdateBtn" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition hidden mt-2 text-sm">
-                <i class="fas fa-download mr-1.5"></i>Download Now
-              </button>
-              <p id="manualUpdateStatusText" class="mt-2 text-xs text-gray-400"></p>
-              <div id="downloadProgressContainer" class="hidden w-full bg-tertiary-bg rounded-full h-2.5 mt-2">
-                <div id="downloadProgressBar" class="h-2.5 rounded-full" style="width: 0%; background-color: var(--theme-primary, #e83d52);"></div>
-              </div>
-            </div>
-
-            <div class="modal-setting-row py-3" style="border-top: 1px solid rgba(156,163,175,0.1);">
-              <div class="flex-1 min-w-0">
-                <div class="text-sm text-text-primary font-medium">Server Status Check</div>
-                <p class="text-xs text-gray-400 mt-0.5">Verify AJC server status when the app launches.</p>
+                <div class="text-sm text-text-primary font-medium">Check server status on start</div>
+                <p class="text-xs text-gray-400 mt-0.5">Checks that the Animal Jam servers are up when Banana Jam opens.</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-3">
                 <input type="checkbox" id="performServerCheckOnLaunchToggle" class="sr-only peer">
@@ -97,8 +64,8 @@
 
             <div class="modal-setting-row py-3" style="border-top: 1px solid rgba(156,163,175,0.1);">
               <div class="flex-1 min-w-0">
-                <div class="text-sm text-text-primary font-medium">24-Hour Time</div>
-                <p class="text-xs text-gray-400 mt-0.5">Use military time format for console and log timestamps.</p>
+                <div class="text-sm text-text-primary font-medium">24-hour time</div>
+                <p class="text-xs text-gray-400 mt-0.5">Show times like 18:30 instead of 6:30 PM in the console and logs.</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-3">
                 <input type="checkbox" id="militaryTimeToggle" class="sr-only peer">
@@ -106,154 +73,11 @@
               </label>
             </div>
 
-            <div class="py-3" style="border-top: 1px solid rgba(156,163,175,0.1);">
-              <button type="button" id="restartTutorialBtn" class="w-full modal-btn-secondary text-sm">
-                <i class="fas fa-redo mr-1.5"></i>Restart Tutorial
-              </button>
-              <p class="mt-1.5 text-xs text-gray-400">Re-run the onboarding walkthrough.</p>
-            </div>
-
           </div>
 
-          <div id="themeTabContent" class="settings-tab-content space-y-4 hidden">
-            <div class="space-y-4">
-              <h4 class="modal-section-title">
-                <i class="fas fa-palette modal-section-icon"></i>Custom Theme Color
-              </h4>
-              <div class="modal-setting-row">
-                <label for="customThemeEnabledToggle" class="text-sm text-text-primary">Enable Custom Color</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="customThemeEnabledToggle" class="sr-only peer">
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-              <p class="mt-1 text-xs text-gray-400 -mt-3">When enabled, the strawberry jam icon will be tinted to match your selected color.</p>
-
-              <div class="modal-setting-row">
-                <label for="applyColorToFruitToggle" class="text-sm text-text-primary">Tint Fruit Icon</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="applyColorToFruitToggle" class="sr-only peer" checked>
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-              <p class="mt-1 text-xs text-gray-400 -mt-3">When disabled, the fruit icon keeps its original colors instead of being tinted.</p>
-
-              <div id="customThemeColorContainer" class="transition-opacity duration-300">
-                <label for="customThemeNameInput" class="block mb-2 text-sm font-medium text-text-primary">Custom Name</label>
-                <input id="customThemeNameInput" type="text" class="modal-input mb-3" placeholder="Custom Jam" maxlength="50">
-                <p class="mt-1 text-xs text-gray-400 -mt-2 mb-3">Customize the display name shown in the application.</p>
-
-                <label for="customThemeFruitSelect" class="block mb-2 text-sm font-medium text-text-primary">Fruit Icon</label>
-                <select id="customThemeFruitSelect" class="modal-input mb-3">
-                  <option value="strawberry.png">Strawberry</option>
-                  <option value="banana.png">Banana</option>
-                  <option value="blueberry.png">Blueberry</option>
-                  <option value="cantaloupe.png">Cantaloupe</option>
-                  <option value="coconut.png">Coconut</option>
-                  <option value="dragonfruit.png">Dragonfruit</option>
-                  <option value="pineapple.png">Pineapple</option>
-                  <option value="pumpkin.png">Pumpkin</option>
-                </select>
-                <p class="mt-1 text-xs text-gray-400 -mt-2 mb-3">Select which fruit icon to tint with your custom color.</p>
-
-                <label for="customThemeColorPicker" class="block mb-2 text-sm font-medium text-text-primary">Theme Color</label>
-                <div class="flex items-center space-x-3">
-                  <input id="customThemeColorPicker" type="color" class="h-10 w-20 rounded cursor-pointer border border-sidebar-border" value="#e83d52">
-                  <input id="customThemeColorInput" type="text" class="modal-input flex-1" placeholder="#e83d52" maxlength="7" style="width: auto;">
-                </div>
-                <p class="mt-1 text-xs text-gray-400">Pick a color to tint the fruit icon throughout the application.</p>
-
-                <div class="mt-3 flex items-center space-x-2">
-                  <img id="customThemeColorPreview" src="app://assets/images/strawberry.png" alt="Color Preview" class="h-6 w-6 rounded border border-sidebar-border">
-                  <button type="button" id="resetCustomThemeColorBtn" class="modal-btn-secondary text-sm">
-                    <i class="fas fa-undo mr-1"></i>Reset to Default
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="leakcheckTabContent" class="settings-tab-content space-y-6 hidden">
-            <div class="space-y-4">
-              <h4 class="modal-section-title">
-                <i class="fas fa-shield-alt modal-section-icon"></i>LeakCheck Service
-              </h4>
-              <div>
-                <label for="leakCheckApiKey" class="block mb-2 text-sm font-medium text-text-primary">API Key</label>
-                <div class="relative inline-block w-full">
-                  <input id="leakCheckApiKey" type="password" class="modal-input pr-10" placeholder="Enter LeakCheck API Key">
-                  <button type="button" id="leakCheckApiKeyToggle" style="position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%);" class="text-text-primary hover:text-highlight-yellow transition-colors focus:outline-none bg-transparent border-0 cursor-pointer z-10">
-                    <i class="fas fa-eye text-sm"></i>
-                  </button>
-                </div>
-                <p class="mt-1 text-xs text-gray-400">Requires a <a href="https://leakcheck.io/" target="_blank" class="hover:underline" style="color: var(--theme-primary, #e83d52);">LeakCheck.io</a> Pro subscription.</p>
-              </div>
-              <div class="modal-setting-row flex-col space-y-2">
-                <div class="flex items-center justify-center">
-                  <label class="text-xs font-medium text-text-primary">Auto-check for leaks</label>
-                </div>
-                <div id="leakCheckThresholdContainer" class="transition-opacity duration-300">
-                  <div class="flex items-center justify-center mb-1">
-                    <input id="leakCheckThreshold" type="number" min="0" step="1" class="modal-input w-14 text-center text-xs" placeholder="0" style="width: 3.5rem;">
-                  </div>
-                  <p class="text-xs text-gray-400 text-center">Trigger after new usernames are collected: (0 = disabled)</p>
-                </div>
-              </div>
-              <div class="modal-setting-row flex-col space-y-2">
-                <div class="flex flex-col items-center">
-                  <label for="leakCheckMaxPasswords" class="block mb-1 text-xs font-medium text-text-primary text-center">Max Passwords per Account</label>
-                  <input id="leakCheckMaxPasswords" type="number" min="0" step="1" class="modal-input w-16 text-center text-xs" placeholder="0" style="width: 4rem;">
-                  <p class="mt-1 text-xs text-gray-400 text-center">General/found accounts exceeding this limit won't be saved. AJC accounts are always saved. Set to 0 for unlimited.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="space-y-4 pt-4">
-              <h4 class="modal-section-title">
-                <i class="fas fa-users modal-section-icon"></i>Username Collection
-              </h4>
-              <div class="modal-setting-row">
-                <label for="leakCheckEnableLogging" class="text-sm text-text-primary">Enable Username Logging</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="leakCheckEnableLogging" class="sr-only peer">
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-              <p class="mt-1 text-xs text-gray-400 -mt-3">Master toggle for the Username Logger plugin functionality.</p>
-              <div id="leakCheckCollectionScopes" class="modal-setting-row opacity-50 pointer-events-none">
-                <label for="leakCheckCollectNearby" class="text-sm text-text-primary">Collect Usernames from Nearby Players</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="leakCheckCollectNearby" class="sr-only peer">
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-              <p class="mt-1 text-xs text-gray-400 -mt-3">Log usernames of players in the same room.</p>
-              <div id="leakCheckCollectionBuddies" class="modal-setting-row opacity-50 pointer-events-none">
-                <label for="leakCheckCollectBuddies" class="text-sm text-text-primary">Collect Usernames from Buddy List</label>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" id="leakCheckCollectBuddies" class="sr-only peer">
-                  <div class="toggle-switch"></div>
-                </label>
-              </div>
-              <p class="mt-1 text-xs text-gray-400 -mt-3">Log usernames from your buddy list updates.</p>
-            </div>
-
-            <div class="space-y-4 pt-4">
-              <h4 class="modal-section-title">
-                <i class="fas fa-folder-open modal-section-icon"></i>File Management
-              </h4>
-              <div>
-                <label for="leakCheckOutputDirInput" class="block mb-2 text-sm font-medium text-text-primary">Output Directory (Optional)</label>
-                <input id="leakCheckOutputDirInput" type="text" class="modal-input" placeholder="Default: [App Data]/UsernameLogger/">
-                <p class="mt-1 text-xs text-gray-400">Custom folder for leak check results. Leave blank for default.</p>
-              </div>
-              <div>
-                <button type="button" id="openOutputDirBtn" class="w-full modal-btn-secondary">
-                  <i class="fas fa-folder-open mr-2"></i>Open Output Directory
-                </button>
-                <p class="mt-1 text-xs text-gray-400">Opens the directory where results and logs are saved.</p>
-              </div>
-            </div>
+          <div id="themeTabContent" class="settings-tab-content hidden">
+            <!-- Banana Jam: filled in by assets/scripts/bj-launcher-theme.js -->
+            <div id="bjThemeMount"></div>
           </div>
 
           <div id="advancedTabContent" class="settings-tab-content space-y-4 hidden">
@@ -264,7 +88,7 @@
 
               <div>
                 <label for="selectedSwfFile" class="block mb-2 text-sm font-medium text-text-primary">
-                  Active .swf Client
+                  Game client file
                 </label>
                 <div class="flex items-center gap-2">
                   <select id="selectedSwfFile" class="modal-input flex-1">
@@ -275,7 +99,7 @@
                     <i class="fas fa-sync-alt"></i>
                   </button>
                 </div>
-                <p class="mt-1 text-xs text-gray-400">Select which .swf file to serve for game sessions. Requires restarting the game to take effect.</p>
+                <p class="mt-1 text-xs text-gray-400">Choose which game file to use. Restart the game to apply.</p>
               </div>
 
               <div class="mt-3 grid grid-cols-2 gap-2">
@@ -298,7 +122,7 @@
                   Server IP
                 </label>
                 <input id="advancedSmartfoxServer" type="text" class="modal-input" placeholder="lb-iss02-classic-prod.animaljam.com">
-                <p class="mt-1 text-xs text-gray-400">Animal Jam server address</p>
+                <p class="mt-1 text-xs text-gray-400">The Animal Jam server address. Leave it as it is unless you know you need to change it.</p>
               </div>
 
               <div class="modal-setting-row mt-4">
@@ -344,8 +168,8 @@
 
               <div class="flex items-center justify-between bg-red-600/10 border border-red-600/30 p-3 rounded">
                 <div class="flex-1">
-                  <label for="allowMultipleInstancesToggle" class="text-sm text-text-primary font-medium">Allow Multiple Instances</label>
-                  <p class="text-xs text-red-400 mt-1">This will cause bugs, errors and issues so please don't flood help channels with the errors that occur.</p>
+                  <label for="allowMultipleInstancesToggle" class="text-sm text-text-primary font-medium">Allow multiple copies</label>
+                  <p class="text-xs text-red-400 mt-1">Can cause bugs and errors. Please don't report problems that happen while this is on.</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer ml-3">
                   <input type="checkbox" id="allowMultipleInstancesToggle" class="sr-only peer">
@@ -355,12 +179,12 @@
 
               <div class="mb-4 py-2 px-3 modal-setting-row flex-col items-start">
                 <div class="flex items-center justify-between mb-1 w-full">
-                  <span class="text-sm font-medium text-text-primary">Current Cache Size:</span>
+                  <span class="text-sm font-medium text-text-primary">Cache size:</span>
                   <span id="cacheSizeValue" class="text-sm" style="color: var(--theme-primary, #e83d52);">Calculating...</span>
                 </div>
                 <div class="text-xs text-gray-400 flex items-center">
                   <i class="fas fa-info-circle mr-1"></i>
-                  <span>Cache includes strawberry-jam-classic and strawberry-jam data directories.</span>
+                  <span>Includes the game's saved data and Banana Jam's own files.</span>
                 </div>
                 <div id="cacheSizeDetails" class="mt-2 text-xs text-gray-400 hidden">
                 </div>
@@ -382,32 +206,32 @@
                       <input type="checkbox" id="cacheGameSession" name="cacheType" class="w-3.5 h-3.5 cache-checkbox bg-tertiary-bg border-gray-400 rounded cursor-pointer" checked>
                       <span class="ml-2 text-sm text-text-primary">Game Session Cache</span>
                     </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Pepper Data, Flash cache, and session storage from strawberry-jam-classic/Cache</p>
+                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Temporary game files.</p>
                   </div>
                   <div class="w-full">
                     <label class="flex items-center w-full cursor-pointer py-0.5" title="Application and error logs">
                       <input type="checkbox" id="cacheLogs" name="cacheType" class="w-3.5 h-3.5 cache-checkbox bg-tertiary-bg border-gray-400 rounded cursor-pointer" checked>
                       <span class="ml-2 text-sm text-text-primary">Log Files</span>
                     </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">All .log files from strawberry-jam/logs</p>
+                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Old activity logs.</p>
                   </div>
                   <div class="w-full">
                     <label class="flex items-center w-full cursor-pointer py-0.5" title="Temporary downloads and cached files">
                       <input type="checkbox" id="cacheTemp" name="cacheType" class="w-3.5 h-3.5 cache-checkbox bg-tertiary-bg border-gray-400 rounded cursor-pointer" checked>
                       <span class="ml-2 text-sm text-text-primary">Temporary Files</span>
                     </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Folders named temp, tmp, cache, or downloads in both data directories</p>
+                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Temporary downloads and cached files.</p>
                   </div>
 
                   <div class="border-t border-sidebar-border pt-1.5 mt-1.5 w-full"></div>
-                  <div class="text-xs font-medium text-red-400 uppercase tracking-wide">User Data</div>
+                  <div class="text-xs font-medium text-red-400 uppercase tracking-wide">Your data</div>
                   <div class="w-full">
                     <label class="flex items-center w-full cursor-pointer py-0.5" title="Saved accounts and authentication tokens">
                       <input type="checkbox" id="cacheAuth" name="cacheType" class="w-3.5 h-3.5 cache-checkbox bg-tertiary-bg border-gray-400 rounded cursor-pointer">
                       <span class="ml-2 text-sm text-text-primary">Saved Accounts</span>
                       <span class="ml-auto text-xs text-red-400">data loss</span>
                     </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">strawberry-jam/accounts, auth, and tokens directories</p>
+                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Your saved accounts and sign-ins. You'll need to log in again.</p>
                   </div>
                   <div class="w-full">
                     <label class="flex items-center w-full cursor-pointer py-0.5" title="User-installed plugins and plugin settings">
@@ -415,7 +239,7 @@
                       <span class="ml-2 text-sm text-text-primary">Plugins</span>
                       <span class="ml-auto text-xs text-red-400">data loss</span>
                     </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">All installed plugin folders in strawberry-jam/plugins</p>
+                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Every plugin you installed.</p>
                   </div>
                   <div class="w-full">
                     <label class="flex items-center w-full cursor-pointer py-0.5" title="Saved settings and application data">
@@ -423,15 +247,7 @@
                       <span class="ml-2 text-sm text-text-primary">App Settings</span>
                       <span class="ml-auto text-xs text-red-400">data loss</span>
                     </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Application preferences, themes, and configuration data</p>
-                  </div>
-                  <div class="w-full">
-                    <label class="flex items-center w-full cursor-pointer py-0.5" title="All logged usernames and collected data">
-                      <input type="checkbox" id="cacheUsernameLogger" name="cacheType" class="w-3.5 h-3.5 cache-checkbox bg-tertiary-bg border-gray-400 rounded cursor-pointer">
-                      <span class="ml-2 text-sm text-text-primary">Username Logger</span>
-                      <span class="ml-auto text-xs text-red-400">data loss</span>
-                    </label>
-                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">All logged usernames, collected player data, and leak check results</p>
+                    <p class="text-xs text-gray-500 mt-0.5" style="margin-left: 1.375rem;">Your settings and themes.</p>
                   </div>
                 </div>
               </div>
@@ -440,29 +256,36 @@
                 <button type="button" id="clearCacheBtn" class="w-full modal-btn-danger">
                   Clear Cache Now
                 </button>
-                <p class="mt-1 text-xs text-gray-400">Clears selected cache types. Requires app restart.</p>
+                <p class="mt-1 text-xs text-gray-400">Clears what you ticked. Restart Banana Jam to finish.</p>
               </div>
 
               <div class="mt-4">
                 <button type="button" id="uninstallBtn" class="w-full bg-red-800 text-white px-4 py-2 rounded hover:bg-red-900 transition">
-                  Uninstall Strawberry Jam
+                  Uninstall Banana Jam
                 </button>
-                <p class="mt-1 text-xs text-gray-400">Removes Strawberry Jam from your computer. This action is irreversible.</p>
+                <p class="mt-1 text-xs text-gray-400">Removes Banana Jam from this computer. You can't undo this.</p>
               </div>
             </div>
           </div>
 
           <div id="aboutTabContent" class="settings-tab-content space-y-5 hidden">
             <div class="text-center pt-3 pb-1">
-              <img src="app://assets/images/strawberry.png" alt="Strawberry Jam" style="width: 48px; height: 48px; display: block; margin: 0 auto 10px auto;">
-              <h4 class="text-lg font-bold text-text-primary">Strawberry Jam <span id="aboutVersionText" class="text-sm font-normal" style="color: var(--theme-primary, #e83d52);">v0.0.0</span></h4>
-              <p class="text-xs text-gray-500 mt-1.5 px-6 leading-relaxed">A companion tool for Animal Jam Classic, born from my fiancee's love of the game.</p>
+              <img class="bj-credits-banana" src="app://assets/images/banana.png" alt="Banana Jam" style="width: 48px; height: 48px; display: block; margin: 0 auto 10px auto;">
+              <h4 class="text-lg font-bold text-text-primary">Banana Jam <span id="aboutVersionText" class="text-sm font-normal" style="color: var(--theme-primary, #e83d52);">v0.0.0</span></h4>
+              <p class="text-xs text-gray-400 mt-1">by <span class="font-semibold text-text-primary">100ugg</span></p>
             </div>
 
-            <div class="flex items-center justify-center gap-3 text-sm">
-              <span class="text-text-primary">Forked by <a href="#" class="font-semibold hover:underline" style="color: var(--theme-primary, #e83d52);" onclick="jam.application.open('https://github.com/glvckoma'); return false;">glvckoma</a></span>
-              <span class="text-gray-600">|</span>
-              <span class="text-gray-400">Created by <a href="#" class="text-text-primary font-medium hover:underline" onclick="jam.application.open('https://github.com/Sxip'); return false;">Sxip</a></span>
+            <div class="mx-4 rounded-lg p-4 space-y-3" style="background: rgba(156,163,175,0.06); border: 1px solid rgba(156,163,175,0.12);">
+              <p class="text-xs uppercase tracking-wider text-gray-500 text-center">Built on the work of</p>
+              <div class="text-center">
+                <a href="#" class="text-base font-bold hover:underline" style="color: var(--theme-primary, #e83d52);" onclick="jam.application.open('https://github.com/glvckoma/Strawberry-Jam'); return false;">Strawberry Jam by glvckoma</a>
+                <p class="text-xs text-gray-400 mt-0.5 leading-relaxed">The launcher, plugin system, mod menu and nearly everything else here. A companion tool born from glvckoma's fiancée's love of the game.</p>
+              </div>
+              <div class="text-center">
+                <a href="#" class="text-base font-bold text-text-primary hover:underline" onclick="jam.application.open('https://github.com/Sxip/jam'); return false;">Jam by Sxip</a>
+                <p class="text-xs text-gray-400 mt-0.5 leading-relaxed">The original project that started it all.</p>
+              </div>
+              <p class="text-xs text-gray-500 text-center pt-1" style="border-top: 1px solid rgba(156,163,175,0.1);">A customizable Strawberry Jam.</p>
             </div>
 
             <div class="flex justify-center gap-4 py-2">

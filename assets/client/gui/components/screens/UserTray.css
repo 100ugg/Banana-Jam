@@ -11,10 +11,11 @@
   /* Prevent cursor interference with game area */
   pointer-events: none;
   /* Theme variables matching LoginScreen */
-  --theme-primary: #e83d52;
-  --theme-secondary: rgba(232, 61, 82, 0.3);
-  --theme-hover-border: rgba(232, 61, 82, 0.5);
-  --theme-shadow: rgba(252, 93, 93, 0.1);
+  --theme-primary: var(--wz-ui, #e83d52);
+  --theme-secondary: color-mix(in srgb, var(--theme-primary) 30%, transparent);
+  --theme-hover-border: color-mix(in srgb, var(--theme-primary) 50%, transparent);
+  --theme-shadow: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+  --theme-settings-hover: color-mix(in srgb, var(--theme-primary) 8%, transparent);
   --theme-box-background: rgba(255, 245, 230, 0.95);
 }
 
@@ -27,7 +28,7 @@
   flex-direction: row;
   align-items: center;
   background-color: var(--theme-box-background);
-  border: 2px solid var(--theme-primary);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 8px;
   box-shadow: 0 8px 32px var(--theme-shadow);
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -39,7 +40,7 @@
 
 #tray-container:hover {
   opacity: 1;
-  border-color: var(--theme-hover-border);
+  border-color: rgba(0, 0, 0, 0.18);
 }
 
 #arrow-container {
@@ -64,7 +65,7 @@
 }
 
 #arrow-container:active {
-  background-color: rgba(232, 61, 82, 0.2);
+  background-color: color-mix(in srgb, var(--theme-primary) 20%, transparent);
 }
 
 #arrow-icon-svg {
@@ -138,3 +139,80 @@
   stroke-width: 2;
   flex-shrink: 0;
 }
+
+/* Banana Jam: no dark outline when a tray button is clicked */
+#tray-container *:focus,
+#tray-container *:focus-visible { outline: none; }
+
+/* ================= Banana Jam: Vista look ================= */
+#tray-container {
+  border: 1px solid rgba(0, 0, 0, 0.45) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--theme-primary) 30%, rgba(255, 255, 255, 0.55)), 0 0 0 5px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+#tray-content button {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.18) 49%, rgba(0, 0, 0, 0.06) 50%, rgba(255, 255, 255, 0.12) 100%),
+    var(--theme-primary) !important;
+  border: 1px solid rgba(0, 0, 0, 0.4) !important;
+  border-radius: 3px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+#tray-content button:hover { filter: brightness(1.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 6px rgba(127, 208, 255, 0.8) !important; }
+
+/* Older Chrome can't blend colours with color-mix(): plain colours instead */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  :host {
+    --theme-secondary: rgba(0, 0, 0, 0.15);
+    --theme-hover-border: rgba(0, 0, 0, 0.3);
+    --theme-shadow: rgba(0, 0, 0, 0.08);
+    --theme-settings-hover: rgba(255, 255, 255, 0.15);
+  }
+  #arrow-container:active { background-color: rgba(255, 255, 255, 0.25); }
+  #tray-container { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.55), 0 0 0 5px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.35) !important; }
+}
+
+/* ================= Banana Jam: Modern look ================= */
+:host-context(.wz-style-modern) #tray-container {
+  border: 1px solid rgba(0, 0, 0, 0.1) !important; border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+}
+:host-context(.wz-style-modern) #tray-content button {
+  background: var(--theme-primary) !important; border: 1px solid transparent !important;
+  border-radius: 8px !important; box-shadow: none !important; text-shadow: none;
+}
+:host-context(.wz-style-modern) #tray-content button:hover { filter: brightness(1.08); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important; }
+
+/* ================= Banana Jam: Bubble look (soft, shiny 3D with a glow) ================= */
+:host-context(.wz-style-bubble) #tray-container {
+  border: 2px solid rgba(255, 255, 255, 0.9) !important; border-radius: 24px !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 0 22px var(--theme-secondary, rgba(255, 255, 255, 0.4)), 0 10px 24px rgba(0, 0, 0, 0.22), inset 0 -4px 8px rgba(0, 0, 0, 0.05) !important;
+}
+:host-context(.wz-style-bubble) #tray-content button {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 51%),
+    var(--theme-primary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important; border-radius: 999px !important; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.18), inset 0 2px 2px rgba(255, 255, 255, 0.5), 0 3px 8px rgba(0, 0, 0, 0.15), 0 0 12px var(--theme-secondary, rgba(255, 255, 255, 0.4)) !important;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
+}
+:host-context(.wz-style-bubble) #tray-content button:hover {
+  transform: translateY(-1px) scale(1.03); filter: brightness(1.06);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.16), inset 0 2px 2px rgba(255, 255, 255, 0.55), 0 5px 12px rgba(0, 0, 0, 0.16), 0 0 20px var(--theme-secondary, rgba(255, 255, 255, 0.5)) !important;
+}
+:host-context(.wz-style-bubble) #tray-content button:active { transform: scale(0.97); }
+
+/* ================= Banana Jam: Comic look (soft 2D cartoon) ================= */
+:host-context(.wz-style-comic) #tray-container {
+  border: 2.5px solid #3b2f2f !important; border-radius: 20px !important;
+  box-shadow: 4px 4px 0 rgba(59, 47, 47, 0.85) !important;
+}
+:host-context(.wz-style-comic) #tray-content button {
+  background: var(--theme-primary) !important; text-shadow: none;
+  border: 2px solid #3b2f2f !important; border-radius: 10px !important;
+  box-shadow: 2px 2px 0 #3b2f2f !important;
+  transition: transform .1s ease, box-shadow .1s ease !important;
+}
+:host-context(.wz-style-comic) #tray-content button:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #3b2f2f !important; }
+:host-context(.wz-style-comic) #tray-content button:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #3b2f2f !important; }

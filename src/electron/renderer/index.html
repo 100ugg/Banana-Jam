@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" style="color-scheme: dark;">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Strawberry Jam</title>
+  <title>Banana Jam</title>
   <link rel="stylesheet" href="app://assets/styles/style.css">
+  <link rel="stylesheet" href="app://assets/styles/bj-vista.css">
   <style>
     @media (max-width: 480px) {
       .header-tab-label { display: none !important; }
@@ -16,6 +17,13 @@
   <script>
     window.jQuery = window.$ = require('jquery')
   </script>
+  <style>
+    /* Banana Jam: the fruit in the bottom-left is never tinted (the theme picks which fruit) */
+    #fruitIcon {
+      filter: none !important;
+    }
+
+  </style>
 </head>
 
 <body class="bg-primary-bg text-sidebar-text h-screen flex font-sans">
@@ -25,7 +33,7 @@
       <div style="flex: 1 1 0; min-width: 0; display: flex; justify-content: flex-end; align-items: center; -webkit-app-region: no-drag;">
         <div id="headerNotification" style="display: none; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 500; margin-right: 8px; white-space: nowrap; animation: fadeInLeft 0.2s ease-out forwards; cursor: default;"></div>
       </div>
-      <div class="flex rounded-lg overflow-hidden" style="border: 1px solid rgba(156,163,175,0.15); -webkit-app-region: no-drag; flex-shrink: 1; min-width: 0;">
+      <div id="bjTabs" class="flex rounded-lg overflow-hidden" style="border: 1px solid rgba(156,163,175,0.15); -webkit-app-region: no-drag; flex-shrink: 1; min-width: 0;">
           <button id="playGameBtn"
             class="text-sidebar-text py-1.5 px-3 text-xs font-medium transition-all relative hover:text-white flex items-center"
             style="white-space: nowrap; flex-shrink: 0;"
@@ -50,24 +58,16 @@
 
       <div style="flex: 1 1 0; min-width: 0; display: flex; justify-content: flex-end;">
       <div class="flex items-center flex-shrink-0" style="-webkit-app-region: no-drag; gap: 2px;">
+        <button id="bjHelpBtn" class="bj-help-btn" title="Show the tips again">?</button>
+        <button id="bjModeBtn" class="p-2 rounded hover:bg-tertiary-bg transition-colors text-sidebar-text focus:outline-none" title="Switch to light mode" aria-label="Switch to light mode" style="display:inline-flex;align-items:center"></button>
         <button id="settingsHeaderBtn" class="p-2 rounded hover:bg-tertiary-bg transition-colors text-sidebar-text focus:outline-none" data-tooltip="Settings">
           <i class="fas fa-cog"></i>
         </button>
-        <button id="minimizeButton"
-          class="p-2 rounded hover:bg-tertiary-bg hover:text-white transition-colors text-sidebar-text focus:outline-none"
-          data-tooltip="Minimize">
-          <i class="fas fa-minus"></i>
-        </button>
-        <button id="fullscreenButton"
-          class="p-2 rounded hover:bg-tertiary-bg hover:text-white transition-colors text-sidebar-text focus:outline-none"
-          data-tooltip="Toggle Fullscreen">
-          <i class="fa-regular fa-window-maximize"></i>
-        </button>
-        <button id="mainCloseButton"
-          class="p-2 rounded hover:bg-error-red hover:text-white transition-colors text-sidebar-text focus:outline-none"
-          data-tooltip="Close">
-          <i class="fas fa-times"></i>
-        </button>
+        <div class="wzcaps">
+          <button id="minimizeButton" class="wzcap wzcap-min" title="Minimise"><i class="fas fa-minus"></i><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 7.5h8"/></svg></button>
+          <button id="fullscreenButton" class="wzcap wzcap-max" title="Maximise"><i class="fa-regular fa-window-maximize"></i><svg class="g-max" viewBox="0 0 10 10" aria-hidden="true"><rect x="1.2" y="1.2" width="7.6" height="7.6"/></svg><svg class="g-restore" viewBox="0 0 10 10" aria-hidden="true"><rect x="1" y="3" width="6" height="6"/><path d="M3 3V1h6v6H7"/></svg></button>
+          <button id="mainCloseButton" class="wzcap wzcap-close" title="Close"><i class="fas fa-times"></i><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
+        </div>
       </div>
       </div>
     </header>
@@ -343,6 +343,20 @@
   <!-- Auto complete -->
   <script src="app://assets/scripts/jquery-ui.js"></script>
   <script src="app://assets/scripts/popper.min.js"></script>
+
+  <!-- Banana Jam: colour wheel, tips and theme -->
+  <script src="app://assets/scripts/wz-color-picker.js"></script>
+  <script src="app://assets/scripts/wz-tips.js"></script>
+  <script src="app://assets/scripts/wz-icons.js"></script>
+  <script src="app://assets/scripts/wz-presets.js"></script>
+  <script src="app://assets/scripts/wz-mode.js"></script>
+  <script src="app://assets/scripts/wz-share.js"></script>
+  <link rel="stylesheet" href="app://assets/fonts/bj/bj-fonts.css">
+  <script src="app://assets/scripts/wz-fonts.js"></script>
+  <script>try { WzFonts.init({ mode: "launcher" }); } catch (e) {}</script>
+  <script src="app://assets/scripts/wz-style.js"></script>
+  <script src="app://assets/scripts/bj-launcher-theme.js"></script>
+  <script src="app://assets/scripts/bj-launcher-tips.js"></script>
 
   <!-- Jam -->
   <script src="index.js"></script>
@@ -1101,6 +1115,9 @@
       
       // Apply theme styles immediately on initial load to ensure icons are colored
       applySynchronizedElements(getComputedStyle(document.documentElement).getPropertyValue('--theme-primary').trim() || '#e83d52');
+
+      // Banana Jam: let the launcher theme (bj-launcher-theme.js) use these too
+      window.__bjThemeHooks = { updateThemeColors, applySynchronizedElements };
       
       // Function to apply custom color theme
       const applyCustomColorTheme = async (color, customName, customFruit) => {
@@ -1244,6 +1261,8 @@
         
         // Load saved fruit theme from settings (after jam is initialized)
         const loadSavedTheme = async () => {
+          // Banana Jam: the launcher theme is in charge of colours, name and fruit now
+          if (window.BJTheme) { window.BJTheme.apply(); return; }
           if (window.jam && window.jam.ipcRenderer) {
             const customColorApplied = await loadCustomColorTheme();
             if (customColorApplied) {
@@ -1390,6 +1409,14 @@
         
         // Attach click handler with jQuery
         $fruitIcon.on('click', async function() {
+          // Banana Jam: the fruit comes from the theme, so a click just gives it a little bounce
+          if (window.BJTheme) {
+            $fruitIcon.removeClass("fruit-animate");
+            void $fruitIcon[0].offsetWidth;
+            $fruitIcon.addClass("fruit-animate");
+            setTimeout(() => { $fruitIcon.removeClass("fruit-animate"); }, 300);
+            return;
+          }
           if (window.jam && window.jam.ipcRenderer) {
             const customEnabled = await window.jam.ipcRenderer.invoke('get-setting', 'ui.customThemeEnabled');
             if (customEnabled === true) {

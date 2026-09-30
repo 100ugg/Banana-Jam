@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Strawberry Jam Classic</title>
+    <title>Banana Jam Classic</title>
   </head>
 
   <body>
@@ -43,7 +43,7 @@
       }
 
       #game-screen.show {
-        transform: translateY(calc(calc(100vh - 2px) * -1));
+        transform: translateY(-100vh);
       }
 
       #modal-layer {
@@ -281,36 +281,8 @@
         },
 
         reportError(section, err) {
-          // Ensure config is loaded before trying to report
-          if (!globals.config || !globals.config.api) {
-            console.error("Error reporting disabled: globals.config.api not set.", section, err);
-            return;
-          }
-          const message = err.stack || err.message || err;
-          const body = JSON.stringify({
-            username: globals.currentUser,
-            version: globals.systemData.version,
-            platform: globals.systemData.platform,
-            message: message.slice(0, 1000),
-            section,
-          });
-          globals.fetch(`${globals.config.api}/v1/reportError`, {
-            method: "POST",
-            mode: "cors",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body,
-            userAbortController: false,  // prevent user from aborting
-          }, [413, 403]).catch(err => {
-            // Silently handle errors in error reporting to prevent cascading error loops
-            // 403 errors on error reporting endpoint are not critical
-            if (err.message && err.message.includes('403')) {
-              console.warn("[ERROR REPORTING] Error reporting endpoint returned 403 - this is non-critical");
-            } else {
-              console.log("[ERROR REPORTING] Failed to report error:", err);
-            }
-          });
+          // Banana Jam: errors stay on this computer. Nothing (not even your username) is sent to anyone.
+          console.error(`[${section}]`, err);
         },
 
         parseBool(val) {
@@ -908,6 +880,19 @@
     <!-- Load Core Component Scripts (as regular scripts) -->
 
     <!-- Critical components loaded synchronously -->
+    <script src="components/util/GameBorder.js"></script>
+    <script src="components/util/WzStyle.js"></script>
+    <script src="components/util/WzColorPicker.js"></script>
+    <script src="components/util/WzMenuStyle.js"></script>
+    <script src="components/util/WzIcons.js"></script>
+    <script src="components/util/WzPresets.js"></script>
+    <script src="components/util/WzMode.js"></script>
+    <script src="components/util/WzShare.js"></script>
+    <link rel="stylesheet" href="fonts/bj/bj-fonts.css">
+    <script src="components/util/WzFonts.js"></script>
+    <script>try { WzFonts.init({ mode: "game" }); } catch (e) {}</script>
+    <script src="components/util/WzTips.js"></script>
+    <script src="components/util/WzTipsGame.js"></script>
     <script src="components/controls/Button.js"></script>
     <script src="components/login/LoginScreen.utilities.js"></script>
     <script src="components/login/LoginScreen.themes.js"></script>
@@ -946,7 +931,20 @@
 
     <div id="modal-layer"></div>
     <ajd-login-screen id="login-screen"></ajd-login-screen>
+    <script>
+      // Banana Jam: if the page could not build the login screen, build it again by hand
+      (function () {
+        var ls = document.getElementById('login-screen');
+        if (ls && !ls.shadowRoot) {
+          console.warn('[Banana Jam] The login screen did not build, building it again.');
+          var fresh = document.createElement('ajd-login-screen');
+          fresh.id = 'login-screen';
+          ls.parentNode.replaceChild(fresh, ls);
+        }
+      })();
+    </script>
     <ajd-game-screen id="game-screen"></ajd-game-screen>
+    <script src="components/util/WzTitleBar.js"></script>
 
     <script>
       "use strict";
@@ -954,6 +952,16 @@
       (() => {
         const loginScreen = document.getElementById("login-screen");
         const gameScreen = document.getElementById("game-screen");
+
+        // Banana Jam: let the login screen know when the game is on screen,
+        // so its settings/log buttons can move to the corner during play.
+        new MutationObserver(() => {
+          const inGame = gameScreen.classList.contains("show");
+          if (loginScreen.classList.contains("in-game") !== inGame) {
+            loginScreen.classList.toggle("in-game", inGame);
+            if (window.ipc) window.ipc.send("wz-game-mode", inGame);
+          }
+        }).observe(gameScreen, { attributes: true, attributeFilter: ["class"] });
 
         loginScreen.addEventListener("loggedIn", event => {
           if (loginScreen._loginTimeout) {
@@ -1166,77 +1174,156 @@
 
         // Check if dark mode is enabled by looking at the login screen
         const loginScreen = document.getElementById('login-screen');
-        const isDarkMode = loginScreen && loginScreen.classList.contains('dark-mode');
+        // follow the card colour of the theme (a light theme on a dark-mode PC still gets a light dialog)
+        const isDarkMode = !!loginScreen && (loginScreen.classList.contains('wz-card-dark') ||
+          (loginScreen.classList.contains('dark-mode') && !loginScreen.classList.contains('wz-card-light')));
+        // Banana Jam: exit menu uses the theme's Exit Menu colour
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--wz-exit').trim() || '#e83d52';
 
-        // Create modal backdrop
+        // Banana Jam: a Windows Vista / 7 style dialog. The glass is tinted with the Exit Menu colour.
+        // (Colours are mixed here because the game window may run an older Chrome.)
+        const toRgb = (hex) => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); const n = parseInt(m ? m[1] : 'b07a3c', 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+        const mixHex = (hex, t) => { const c = toRgb(hex); return `rgb(${c.map(x => Math.round(x + (255 - x) * t)).join(',')})`; };
+        const tintRgb = toRgb(accent);
+        const lightGlass = (tintRgb[0] * 299 + tintRgb[1] * 587 + tintRgb[2] * 114) / 1000 > 120;
+        const glass = `linear-gradient(180deg, ${mixHex(accent, 0.6)} 0%, ${mixHex(accent, 0.3)} 22px, ${accent} 23px, ${mixHex(accent, 0.18)} 100%)`;
+        const titleText = lightGlass ? '#111' : '#fff';
+        const titleGlow = lightGlass ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.85)';
+        const client = isDarkMode ? '#2b2b2e' : '#ffffff';
+        const footer = isDarkMode ? '#232326' : '#f0f0f0';
+        const textColor = isDarkMode ? '#e8e8e8' : '#1e1e1e';
+        const instrColor = isDarkMode ? '#8cc4ff' : '#1e3f7a';
+
         const modalBackdrop = document.createElement('div');
         modalBackdrop.id = 'exit-confirmation-modal';
         modalBackdrop.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(5px);
-          z-index: 10000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'CCDigitalDelivery', sans-serif;
+          position: fixed; inset: 0; z-index: 2147483100;
+          background-color: rgba(0, 0, 0, 0.45);
+          backdrop-filter: blur(3px);
+          display: flex; align-items: center; justify-content: center;
         `;
 
-        // Create modal content with conditional styling
         const modalContent = document.createElement('div');
-        const backgroundColor = isDarkMode ? 'rgba(45, 45, 45, 0.95)' : 'rgba(255, 245, 230, 0.95)';
-        const borderColor = isDarkMode ? 'rgba(255, 255, 255, 0.3)' : '#e83d52';
-        const boxShadow = isDarkMode ? '0 20px 40px rgba(0, 0, 0, 0.4)' : '0 20px 40px rgba(252, 93, 93, 0.1)';
-        
-        modalContent.style.cssText = `
-          background: ${backgroundColor};
-          border: 3px solid ${borderColor};
-          border-radius: 15px;
-          padding: 30px;
-          max-width: 450px;
-          width: 90%;
-          box-shadow: ${boxShadow};
-          text-align: center;
-          position: relative;
-          animation: modalSlideIn 0.3s ease-out;
-        `;
-
-        // Define colors based on dark mode
-        const titleColor = isDarkMode ? '#E0E0E0' : '#e83d52';
-        const textColor = isDarkMode ? '#E0E0E0' : '#333333';
-        const labelColor = isDarkMode ? '#B0B0B0' : '#666666';
-
+        const look = (window.WzStyle && window.WzStyle.get()) || { ui: 'vista' };
+        modalContent.className = 'wzx st-' + look.base + ' st-' + look.ui;
+        modalContent.setAttribute('role', 'dialog');
+        modalContent.setAttribute('aria-label', 'Exit Game');
         modalContent.innerHTML = `
           <style>
-            @keyframes modalSlideIn {
-              from { opacity: 0; transform: scale(0.9) translateY(-20px); }
-              to { opacity: 1; transform: scale(1) translateY(0); }
+            @keyframes wzxIn { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+            .wzx {
+              width: 400px; max-width: calc(100% - 24px); box-sizing: border-box; padding: 0 8px 8px;
+              border: 1px solid rgba(0, 0, 0, 0.62); border-radius: 7px; background: ${glass};
+              box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.5);
+              animation: wzxIn 0.16s ease-out; user-select: none; text-align: left;
             }
+            .wzx * { box-sizing: border-box; }
+            .wzx-head { display: flex; align-items: flex-start; height: 31px; }
+            .wzx-title { flex: 1; margin: 7px 0 0 4px; font: 13px "Segoe UI", Tahoma, sans-serif; color: ${titleText};
+              text-shadow: 0 0 8px ${titleGlow}, 0 0 3px ${titleGlow}; }
+            .wzx-head .wzcaps { margin-left: 6px; --wzcap-h: 31px; color: ${titleText}; }
+            .wzx-client { border: 1px solid rgba(0, 0, 0, 0.5); border-radius: 2px; overflow: hidden;
+              background: ${client}; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35); }
+            .wzx-body { display: flex; gap: 14px; padding: 18px 18px 20px; }
+            .wzx-icon { flex-shrink: 0; width: 34px; height: 34px; }
+            .wzx-instr { font: 17px CCDigitalDelivery, "Segoe UI", sans-serif; color: ${instrColor}; margin: 2px 0 8px; }
+            .wzx-text { font: 14px/1.45 CCDigitalDelivery, "Segoe UI", sans-serif; color: ${textColor}; }
+            .wzx-foot { display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+              background: ${footer}; border-top: 1px solid ${isDarkMode ? '#3a3a3e' : '#dfdfdf'}; }
+            .wzx-check { flex: 1; display: flex; align-items: center; gap: 7px; cursor: pointer;
+              font: 13px CCDigitalDelivery, "Segoe UI", sans-serif; color: ${textColor}; }
+            .wzx-check input { width: 14px; height: 14px; margin: 0; cursor: pointer; }
+            .wzx-btn { min-width: 82px; height: 27px; padding: 0 12px; cursor: pointer; border-radius: 3px;
+              border: 1px solid #707070; color: #1e1e1e; outline: none;
+              background: linear-gradient(180deg, #f2f2f2 0%, #ebebeb 48%, #dddddd 52%, #cfcfcf 100%);
+              box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8); font: 13px "Segoe UI", Tahoma, sans-serif; }
+            .wzx-btn:hover { border-color: #3c7fb1; background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 48%, #bee6fd 52%, #a7d9f5 100%); }
+            .wzx-btn:active { border-color: #2c628b; background: linear-gradient(180deg, #e5f4fc 0%, #c4e5f6 48%, #98d1ef 52%, #68b3db 100%); }
+            .wzx-btn:focus { border-color: #3c7fb1; box-shadow: inset 0 0 0 1px #a5dcf9, 0 0 3px rgba(60, 127, 177, 0.7); }
+
+            /* Modern: flat card */
+            .wzx.st-modern { padding: 0; border: 1px solid rgba(0, 0, 0, 0.14); border-radius: 12px; overflow: hidden; background: ${client}; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); }
+            .wzx.st-modern .wzx-head { height: 40px; }
+            .wzx.st-modern .wzx-head .wzcaps { --wzcap-h: 40px; color: ${textColor}; }
+            .wzx.st-modern .wzx-title { margin: 11px 0 0 16px; color: ${textColor}; text-shadow: none; font-weight: 600; }
+            .wzx.st-modern .wzx-client { border: none; border-radius: 0; box-shadow: none; }
+            .wzx.st-modern .wzx-body { padding: 8px 20px 20px; }
+            .wzx.st-modern .wzx-instr { color: ${textColor}; }
+            .wzx.st-modern .wzx-btn { height: 32px; border-radius: 8px; border: 1px solid ${isDarkMode ? '#4a4a4e' : '#d0d0d0'}; box-shadow: none;
+              background: ${isDarkMode ? '#3a3a3e' : '#ffffff'}; color: ${textColor}; font-weight: 500; }
+            .wzx.st-modern .wzx-btn:hover { background: ${isDarkMode ? '#46464a' : '#f2f2f2'}; }
+            .wzx.st-modern .wzx-btn:focus { border-color: ${accent}; box-shadow: 0 0 0 3px ${mixHex(accent, 0.6)}; }
+            .wzx.st-modern #confirmBtn { background: ${accent}; color: #fff; border-color: transparent; }
+
+            /* Bubble: soft, shiny 3D with a gentle glow */
+            .wzx.st-bubble { padding: 0 10px 10px; border: 2px solid rgba(255, 255, 255, 0.95); border-radius: 28px;
+              background: radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 55%), linear-gradient(180deg, ${mixHex(accent, 0.75)} 0%, ${mixHex(accent, 0.42)} 100%);
+              box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 0 30px rgba(${tintRgb.join(', ')}, 0.45), 0 16px 40px rgba(0, 0, 0, 0.3), inset 0 -5px 10px rgba(0, 0, 0, 0.06); }
+            .wzx.st-bubble .wzx-head { height: 36px; }
+            .wzx.st-bubble .wzx-title { margin: 9px 0 0 8px; font-weight: bold; color: #3a2a1a; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 8px rgba(255, 255, 255, 0.7); }
+            .wzx.st-bubble .wzx-client { border: 1px solid rgba(255, 255, 255, 0.9); border-radius: 22px; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.07); }
+            .wzx.st-bubble .wzx-foot { border-top: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}; background: ${isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)'}; }
+            .wzx.st-bubble .wzx-btn { height: 32px; border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.95); color: #4a4a4a; font-weight: bold;
+              background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 50%, #ececec 51%, #f5f5f5 100%);
+              box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 -3px 5px rgba(0, 0, 0, 0.06), 0 3px 7px rgba(0, 0, 0, 0.13); transition: transform .15s ease, box-shadow .15s ease; }
+            .wzx.st-bubble .wzx-btn:hover { transform: translateY(-1px) scale(1.04); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.14), 0 0 16px rgba(${tintRgb.join(', ')}, 0.5); }
+            .wzx.st-bubble .wzx-btn:active { transform: scale(0.97); }
+            .wzx.st-bubble .wzx-btn:focus { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 4px rgba(${tintRgb.join(', ')}, 0.35), 0 3px 7px rgba(0, 0, 0, 0.13); }
+            .wzx.st-bubble #confirmBtn { color: ${lightGlass ? '#2a2a2a' : '#ffffff'}; border-color: rgba(255, 255, 255, 0.7); text-shadow: ${lightGlass ? 'none' : '0 1px 1px rgba(0, 0, 0, 0.25)'};
+              background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 51%), ${accent};
+              box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.18), 0 0 14px rgba(${tintRgb.join(', ')}, 0.5); }
+
+            /* Comic: soft 2D cartoon (flat colours, soft ink outlines, solid drop shadows) */
+            .wzx.st-comic { padding: 0 10px 10px; border: 2.5px solid #3b2f2f; border-radius: 22px;
+              background: radial-gradient(rgba(59, 47, 47, 0.07) 1px, transparent 1.6px) 0 0 / 7px 7px, ${mixHex(accent, 0.55)};
+              box-shadow: 6px 6px 0 rgba(59, 47, 47, 0.85); }
+            .wzx.st-comic .wzx-head { height: 36px; }
+            .wzx.st-comic .wzx-title { margin: 9px 0 0 8px; font-weight: bold; color: #3b2f2f; text-shadow: none; }
+            .wzx.st-comic .wzx-client { border: 2px solid #3b2f2f; border-radius: 16px; box-shadow: none; }
+            .wzx.st-comic .wzx-foot { border-top: 2px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.14)' : 'rgba(59, 47, 47, 0.2)'}; background: transparent; }
+            .wzx.st-comic .wzx-btn { height: 32px; border-radius: 12px; border: 2px solid #3b2f2f; color: ${isDarkMode ? '#f1ece6' : '#3b2f2f'}; font-weight: bold;
+              background: ${isDarkMode ? '#3a3a3e' : '#ffffff'}; box-shadow: 2px 2px 0 #3b2f2f; transition: transform .1s ease, box-shadow .1s ease; }
+            .wzx.st-comic .wzx-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #3b2f2f; background: ${isDarkMode ? '#46464a' : mixHex(accent, 0.8)}; }
+            .wzx.st-comic .wzx-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #3b2f2f; }
+            .wzx.st-comic .wzx-btn:focus { border-color: #3b2f2f; box-shadow: 2px 2px 0 #3b2f2f, 0 0 0 3px ${mixHex(accent, 0.6)}; }
+            .wzx.st-comic #confirmBtn { background: ${accent}; color: ${lightGlass ? '#3b2f2f' : '#ffffff'}; }
           </style>
-          <div style="color: ${titleColor}; font-size: 24px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <span style="background: #E74C3C; color: white; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">✕</span>
-            Exit Game
+          <div class="wzx-head">
+            <span class="wzx-title">Exit Game</span>
+            ${window.WzStyle ? window.WzStyle.capsHTML(['close']) : '<div class="wzcaps"><button type="button" class="wzcap wzcap-close" title="Close">✕</button></div>'}
           </div>
-          <div style="color: ${textColor}; font-size: 16px; line-height: 1.5; margin-bottom: 25px;">
-            Are you sure you want to exit the game?<br>
-            This will close all plugins as well.
-          </div>
-          <div style="margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; user-select: none;" id="dontAskContainer">
-            <input type="checkbox" id="dontAskCheckbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: #e83d52;">
-            <label for="dontAskCheckbox" style="color: ${labelColor}; font-size: 14px; cursor: pointer;">Don't ask me again</label>
-          </div>
-          <div style="display: flex; gap: 15px; justify-content: center;">
-            <button id="cancelBtn" style="background: #4A5568; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; min-width: 100px;">Cancel</button>
-            <button id="confirmBtn" style="background: #e83d52; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s ease; min-width: 100px;">Yes, Exit</button>
+          <div class="wzx-client">
+            <div class="wzx-body">
+              <svg class="wzx-icon" viewBox="0 0 34 34" aria-hidden="true">
+                <defs>
+                  <linearGradient id="wzxTri" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#fff3a8"/><stop offset="0.5" stop-color="#ffd52e"/><stop offset="1" stop-color="#f0a300"/>
+                  </linearGradient>
+                </defs>
+                <path d="M17 2.5 L32 30 Q32.6 31.5 31 31.5 L3 31.5 Q1.4 31.5 2 30 Z" fill="url(#wzxTri)" stroke="#b07800" stroke-width="1.4" stroke-linejoin="round"/>
+                <path d="M17 5.5 L29.2 28.8" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" fill="none"/>
+                <rect x="15.2" y="11" width="3.6" height="11" rx="1.6" fill="#3a2a00"/>
+                <circle cx="17" cy="26.2" r="2.1" fill="#3a2a00"/>
+              </svg>
+              <div>
+                <div class="wzx-instr">Are you sure you want to exit the game?</div>
+                <div class="wzx-text">This will close all plugins as well.</div>
+              </div>
+            </div>
+            <div class="wzx-foot">
+              <label class="wzx-check" id="dontAskContainer"><input type="checkbox" id="dontAskCheckbox"> Don't ask me again</label>
+              <button type="button" class="wzx-btn" id="confirmBtn">Yes, exit</button>
+              <button type="button" class="wzx-btn" id="cancelBtn">Cancel</button>
+            </div>
           </div>
         `;
 
         modalBackdrop.appendChild(modalContent);
         document.body.appendChild(modalBackdrop);
+        modalContent.querySelector('.wzcap-close').addEventListener('click', () => {
+          document.removeEventListener('keydown', handleKeyDown);
+          closeModal(false);
+        });
 
         // Add event listeners
         const cancelBtn = modalContent.querySelector('#cancelBtn');
@@ -1260,19 +1347,15 @@
         }
 
         // Button event listeners
-        cancelBtn.addEventListener('click', () => closeModal(false));
-        confirmBtn.addEventListener('click', () => closeModal(true));
+        cancelBtn.addEventListener('click', () => { document.removeEventListener('keydown', handleKeyDown); closeModal(false); });
+        confirmBtn.addEventListener('click', () => { document.removeEventListener('keydown', handleKeyDown); closeModal(true); });
 
-        // Checkbox container click
-        dontAskContainer.addEventListener('click', (e) => {
-          if (e.target !== checkbox) {
-            checkbox.checked = !checkbox.checked;
-          }
-        });
+        // (the "Don't ask me again" text is a <label>, so clicking it ticks the box by itself)
 
         // Backdrop click to cancel
         modalBackdrop.addEventListener('click', (e) => {
           if (e.target === modalBackdrop) {
+            document.removeEventListener('keydown', handleKeyDown);
             closeModal(false);
           }
         });
@@ -1285,25 +1368,6 @@
           }
         };
         document.addEventListener('keydown', handleKeyDown);
-
-        // Button hover effects
-        cancelBtn.addEventListener('mouseenter', () => {
-          cancelBtn.style.background = '#5A6578';
-          cancelBtn.style.transform = 'translateY(-1px)';
-        });
-        cancelBtn.addEventListener('mouseleave', () => {
-          cancelBtn.style.background = '#4A5568';
-          cancelBtn.style.transform = 'translateY(0)';
-        });
-
-        confirmBtn.addEventListener('mouseenter', () => {
-          confirmBtn.style.background = '#c73650';
-          confirmBtn.style.transform = 'translateY(-1px)';
-        });
-        confirmBtn.addEventListener('mouseleave', () => {
-          confirmBtn.style.background = '#e83d52';
-          confirmBtn.style.transform = 'translateY(0)';
-        });
 
         // Focus the cancel button
         setTimeout(() => cancelBtn.focus(), 100);

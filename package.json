@@ -1,16 +1,16 @@
 {
   "name": "strawberry-jam",
-  "description": "strawberry jam is my personal fork of the project jam created and developed by sxip.",
+  "productName": "Banana Jam",
+  "description": "A customizable Strawberry Jam.",
   "main": "src/index.js",
-  "version": "5.2.0",
+  "version": "0.7.0",
   "author": {
-    "name": "glvckoma",
-    "email": "glvckoma@users.noreply.github.com"
+    "name": "100ugg"
   },
   "scripts": {
     "dev": "npx tailwindcss -i src/styles/app.css -o assets/styles/style.css --minify && npm run pack && npx cross-env NODE_ENV=development electron .",
     "test": "npx tailwindcss -i src/styles/app.css -o assets/styles/style.css --minify && npm run pack && npx cross-env NODE_ENV=production electron .",
-    "pack": "npx asar pack assets/client assets/app-client.asar --unpack *.node",
+    "pack": "node scripts/sync-shared.js && npx asar pack assets/client assets/app-client.asar --unpack *.node",
     "build": "npx tailwindcss -i src/styles/app.css -o assets/styles/style.css --minify && npm run pack && node scripts/generate-installer-script.js && npx electron-builder build -w",
     "publish": "npx tailwindcss -i src/styles/app.css -o assets/styles/style.css --minify && npm run pack && node scripts/generate-installer-script.js && npx electron-builder build -w -p always",
     "postinstall": "electron-builder install-app-deps",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/glvckoma/Strawberry-Jam"
+    "url": "https://github.com/100ugg/Banana-Jam"
   },
   "devDependencies": {
     "asar": "^3.2.0",

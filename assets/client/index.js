@@ -43,6 +43,9 @@ Module.prototype.require = function(id) {
 
 const {app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell, globalShortcut, session} = require("electron");
 const {autoUpdater} = require("electron-updater");
+// Banana Jam: never download or install updates from anyone else's release feed
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
 const crypto = require("crypto");
 const path = require("path");
 const Store = require("electron-store");
@@ -59,7 +62,7 @@ const translation = require("./translation.js");
 const net = require('net');
 require("./proxy.js");
 
-const strawberryJamClassicPath = path.join(app.getPath('appData'), 'strawberry-jam-classic');
+const strawberryJamClassicPath = path.join(app.getPath('appData'), 'bananajam-classic');
 app.setPath('userData', strawberryJamClassicPath);
 
 try {
@@ -86,6 +89,22 @@ let printWindow = null;
 let isClosing = false;
 
 const store = new Store();
+
+// Banana Jam: one-time copy of saved accounts from an existing Strawberry Jam install
+try {
+  if (!store.get('wz_imported_sj_accounts')) {
+    const sjConfig = path.join(app.getPath('appData'), 'strawberry-jam-classic', 'config.json');
+    const current = store.get(STORE_KEY_SAVED_ACCOUNTS, []);
+    if ((!current || current.length === 0) && fs.existsSync(sjConfig)) {
+      const old = JSON.parse(fs.readFileSync(sjConfig, 'utf8'));
+      if (Array.isArray(old[STORE_KEY_SAVED_ACCOUNTS]) && old[STORE_KEY_SAVED_ACCOUNTS].length) {
+        store.set(STORE_KEY_SAVED_ACCOUNTS, old[STORE_KEY_SAVED_ACCOUNTS]);
+        if (old.savedAccountPasswords) store.set('savedAccountPasswords', old.savedAccountPasswords);
+      }
+    }
+    store.set('wz_imported_sj_accounts', true);
+  }
+} catch (e) {}
 
 let originalMachineId = null;
 let spoofedUuid = null;
@@ -275,6 +294,8 @@ const updateStatus = {
 let autoUpdateTimeoutId = null;
 
 const scheduleAutoUpdate = (delayMs) => {
+  // Banana Jam: auto-updates are switched off
+  return;
   log("debug", `Scheduled update check: ${delayMs}ms`);
   if (autoUpdateTimeoutId !== null) {
     clearTimeout(autoUpdateTimeoutId);
@@ -370,23 +391,38 @@ ipcMain.on("loaded", async (event, message) => {
 
   win.on("enter-full-screen", () => {
     setTimeout(() => {
-      store.set("window.state", "fullScreen");
+      if (wzInGame) store.set("window.state", "fullScreen");
       if (webview && webview.send) webview.send("screenChange", "fullScreen");
     }, 1);
   });
 
   win.on("maximize", () => {
-    store.set("window.state", "maximized");
+    if (wzInGame) store.set("window.state", "maximized");
     if (webview && webview.send) webview.send("screenChange", "maximized");
   });
 
   win.on("unmaximize", () => {
-    store.set("window.state", "windowed");
+    if (wzInGame) store.set("window.state", "windowed");
     if (webview && webview.send) webview.send("screenChange", "windowed");
   });
 
   win.on("leave-full-screen", () => {
-    store.set("window.state", "windowed");
+    // Banana Jam: a frameless window can come back off-screen or tiny; put it back somewhere sensible
+    setTimeout(() => {
+      try {
+        if (!win || win.isDestroyed() || win.isFullScreen() || win.isMaximized()) return;
+        const b = win.getBounds();
+        const wa = require("electron").screen.getDisplayMatching(b).workArea;
+        const bad = b.width < 300 || b.height < 300 || b.x + b.width < wa.x + 60 || b.x > wa.x + wa.width - 60 || b.y < wa.y - 5 || b.y > wa.y + wa.height - 60;
+        if (bad) {
+          win.setSize(wzInGame ? (store.get("window.width") || 1440) : WZ_COMPACT.width, wzInGame ? (store.get("window.height") || 880) : WZ_COMPACT.height);
+          win.center();
+        }
+        if (!win.isVisible()) win.show();
+        win.focus();
+      } catch (e) {}
+    }, 250);
+    if (wzInGame) store.set("window.state", "windowed");
     if (webview && webview.send) webview.send("screenChange", "windowed");
   });
 
@@ -444,6 +480,20 @@ ipcMain.on("loaded", async (event, message) => {
       return;
     }
     
+    // Banana Jam: closing from the taskbar can leave the window minimised or off-screen, so the question is never seen
+    try {
+      if (win && !win.isDestroyed()) {
+        if (win.isMinimized()) win.restore();
+        const wb = win.getBounds();
+        const wa = require("electron").screen.getDisplayMatching(wb).workArea;
+        if (wb.width < 300 || wb.height < 300 || wb.x + wb.width < wa.x + 60 || wb.x > wa.x + wa.width - 60 || wb.y < wa.y - 5 || wb.y > wa.y + wa.height - 60) {
+          win.setSize(wzInGame ? (store.get("window.width") || 1440) : WZ_COMPACT.width, wzInGame ? (store.get("window.height") || 880) : WZ_COMPACT.height);
+          win.center();
+        }
+        if (!win.isVisible()) win.show();
+        win.focus();
+      }
+    } catch (e) {}
     if (win && win.webContents && !win.isDestroyed()) {
       log("debug", "[Exit Confirmation] Sending show-exit-confirmation to renderer");
       win.webContents.send("show-exit-confirmation");
@@ -528,7 +578,7 @@ ipcMain.on("about", async (event, message) => {
     }
     const returnValue = await dialog.showMessageBox(win, {
       type: "none",
-      icon: __dirname + '/gui/images/icon.png',
+      // Banana Jam: no icon here, so it keeps the normal Animal Jam icon
       title: `${pack.productName}`,
       message: `${pack.productName}`,
       detail: details.join("\n"),
@@ -601,6 +651,148 @@ const getDf = async () => {
   }
 };
 
+// ---- Banana Jam: colour picker in its own see-through window (can move outside the app) ----
+let wzPickerWin = null;
+
+ipcMain.on("wz-picker-open", (event, opts) => {
+  if (!win || win.isDestroyed()) return;
+  opts = opts && typeof opts === "object" ? opts : {};
+  const zoom = { small: 0.85, normal: 1, large: 1.15 }[opts.size] || 1;
+  // a first guess; the picker page tells us its exact size once it has drawn
+  const width = Math.round(322 * zoom) + 16, height = Math.round(575 * zoom) + 16;
+  const b = win.getBounds();
+  const saved = store.get("wzPickerWin");
+  // it goes beside the game window when there is room, otherwise on top of its right side; it always stays on the screen
+  const wa = require("electron").screen.getDisplayMatching(b).workArea;
+  let x = b.x + b.width + 8, y = b.y + 40;
+  if (x + width > wa.x + wa.width) x = b.x + b.width - width - 24;
+  if (saved && typeof saved.x === "number" && typeof saved.y === "number") { x = saved.x; y = saved.y; }
+  x = Math.round(Math.min(Math.max(x, wa.x), wa.x + wa.width - width));
+  y = Math.round(Math.min(Math.max(y, wa.y), wa.y + wa.height - height));
+  const query = encodeURIComponent(JSON.stringify(opts));
+  if (wzPickerWin && !wzPickerWin.isDestroyed()) wzPickerWin.close();
+  wzPickerWin = new BrowserWindow({
+    parent: win,
+    x, y, width, height,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    skipTaskbar: true,
+    hasShadow: false,
+    show: false,
+    backgroundColor: "#00000000",
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      preload: path.join(__dirname, "gui/pickerPreload.js"),
+    },
+  });
+  wzPickerWin.setMenu(null);
+  wzPickerWin.loadURL(`file://${__dirname}/gui/picker.html#${query}`);
+  // show it once it knows its size (or after a moment, just in case)
+  const shownWin = wzPickerWin;
+  setTimeout(() => { if (shownWin && !shownWin.isDestroyed() && !shownWin.isVisible()) shownWin.show(); }, 1200);
+  const savePos = () => {
+    if (!wzPickerWin || wzPickerWin.isDestroyed()) return;
+    const pb = wzPickerWin.getBounds();
+    store.set("wzPickerWin", { x: pb.x, y: pb.y });
+  };
+  wzPickerWin.on("moved", savePos);
+  wzPickerWin.on("closed", () => {
+    wzPickerWin = null;
+    if (win && !win.isDestroyed()) win.webContents.send("wz-picker-closed");
+  });
+});
+
+ipcMain.on("wz-picker-color", (event, data) => {
+  if (win && !win.isDestroyed()) win.webContents.send("wz-picker-color", data);
+});
+
+// ---- Banana Jam: our own title bar (minimise, maximise, close) ----
+function wzSendWindowState() {
+  if (!win || win.isDestroyed()) return;
+  win.webContents.send("wz-win-state", {
+    maximized: win.isMaximized(),
+    fullscreen: win.isFullScreen(),
+    focused: win.isFocused(),
+  });
+}
+function wzWatchWindowState() {
+  ["maximize", "unmaximize", "enter-full-screen", "leave-full-screen", "focus", "blur", "restore"]
+    .forEach((name) => win.on(name, () => setTimeout(wzSendWindowState, 10)));
+  win.webContents.on("did-finish-load", () => {
+    wzSendWindowState();
+    // the real Animal Jam icon, for the title bar while the game is running
+    app.getFileIcon(process.execPath, { size: "small" })
+      .then((img) => { if (win && !win.isDestroyed()) win.webContents.send("wz-win-icon", img.toDataURL()); })
+      .catch(() => {});
+  });
+}
+ipcMain.on("wz-win", (event, action) => {
+  if (!win || win.isDestroyed()) return;
+  if (action === "minimize") win.minimize();
+  else if (action === "maximize") {
+    if (win.isFullScreen()) win.setFullScreen(false);
+    else if (win.isMaximized()) win.unmaximize();
+    else win.maximize();
+  } else if (action === "close") win.close(); // shows the usual "are you sure?" first
+  else if (action === "state") wzSendWindowState();
+});
+
+ipcMain.on("wz-picker-size", (event, data) => {
+  if (!wzPickerWin || wzPickerWin.isDestroyed() || !data) return;
+  const w = Math.max(200, Math.min(800, Math.round(Number(data.width) || 0)));
+  const h = Math.max(200, Math.min(1000, Math.round(Number(data.height) || 0)));
+  wzPickerWin.setContentSize(w, h);
+  if (!wzPickerWin.isVisible()) wzPickerWin.show();
+});
+
+ipcMain.on("wz-picker-close", () => {
+  if (wzPickerWin && !wzPickerWin.isDestroyed()) wzPickerWin.close();
+});
+
+// colours shared with the launcher
+try { require('./bjShared').install(app, ipcMain, BrowserWindow); } catch (e) { console.error('[Banana Jam] shared colours', e); }
+
+ipcMain.on("wz-picker-reset-position", () => {
+  store.delete("wzPickerWin");
+});
+
+// ---- Banana Jam: small window on the login screen, full size in game ----
+// a thin border around the login box (the title bar is part of this height)
+const WZ_COMPACT = { width: 410, height: 604, minWidth: 380, minHeight: 540 };
+const WZ_GAME_MIN = { width: 900, height: 550 };
+let wzInGame = false;
+
+ipcMain.on("wz-game-mode", (event, inGame) => {
+  if (!win || win.isDestroyed()) return;
+  inGame = !!inGame;
+  if (inGame === wzInGame) return;
+  if (inGame) {
+    wzInGame = true;
+    win.setMinimumSize(WZ_GAME_MIN.width, WZ_GAME_MIN.height);
+    const state = store.get("window.state");
+    if (state === "fullScreen") {
+      win.setFullScreen(true);
+    } else if (state === "maximized") {
+      win.maximize();
+    } else {
+      win.setSize(store.get("window.width") || 1440, store.get("window.height") || 880);
+      win.center();
+    }
+  } else {
+    wzInGame = false;
+    if (win.isFullScreen()) win.setFullScreen(false);
+    if (win.isMaximized()) win.unmaximize();
+    win.setMinimumSize(WZ_COMPACT.minWidth, WZ_COMPACT.minHeight);
+    win.setContentSize(WZ_COMPACT.width, WZ_COMPACT.height);
+    win.center();
+  }
+});
+
 ipcMain.on("ready", () => {
   if (webview && webview.send) {
     webview.send("postSystemData", getSystemData());
@@ -666,7 +858,7 @@ ipcMain.on("systemCommand", (event, message) => {
   }
   else if (message.command === "print") {
     printWindow = new BrowserWindow({
-      icon: __dirname + '/gui/images/icon.png',
+      // Banana Jam: no icon here, so it keeps the normal Animal Jam icon
       enableLargerThanScreen: true,
       x: 0,
       y: 0,
@@ -1230,6 +1422,15 @@ ipcMain.on("translate", (event, message) => {
   }
 });
 
+// Banana Jam: Fast mode (off by default) uses the graphics card more and stops Windows slowing the game down when
+// another window covers it. Turn it off in the game settings if the game looks wrong. Takes effect after a restart.
+try {
+  if (store.get("fastMode", false) === true) {
+    app.commandLine.appendSwitch("enable-gpu-rasterization");
+    app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion");
+  }
+} catch (e) { /* the game still starts without them */ }
+
 app.commandLine.appendSwitch("ppapi-flash-path", path.join(__dirname, `${config.pluginPath}${config.pluginName}`));
 
 app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
@@ -1250,20 +1451,47 @@ app.whenReady().then(async () => {
     store.set(STORE_KEY_SAVED_ACCOUNTS, []);
     log('info', '[Store] Initialized saved_accounts as empty array.');
   }
+  // Banana Jam: new installs start with the Banana Jam custom theme switched on
+  if (!store.has('ui.customThemeEnabled')) {
+    store.set('ui.customThemeEnabled', true);
+    store.set('ui.customThemeColor', '#5a67e8');
+    store.set('ui.customThemeName', 'Banana Jam');
+    store.set('ui.customThemeFruit', 'banana.png');
+  }
+  // Banana Jam: one-time move from the old green default to the safari default
+  if (!store.get('wzSafariV1')) {
+    if (String(store.get('ui.customThemeColor') || '').toLowerCase() === '#5e4308') {
+      store.set('ui.customThemeColor', '#b07a3c');
+    }
+    store.set('wzSafariV1', true);
+  }
+  // Banana Jam: one-time move from the old melon-green start colour to banana yellow
+  if (!store.get('wzBananaV1')) {
+    if (String(store.get('ui.customThemeColor') || '').toLowerCase() === '#b07a3c') {
+      store.set('ui.customThemeColor', '#f2c230');
+    }
+    store.set('wzBananaV1', true);
+  }
+  // Banana Jam: one-time move from the untouched banana-yellow start colour to the calm default
+  if (!store.get('wzNeutralV1')) {
+    if (String(store.get('ui.customThemeColor') || '').toLowerCase() === '#f2c230') {
+      store.set('ui.customThemeColor', '#5a67e8');
+    }
+    store.set('wzNeutralV1', true);
+  }
   if (!store.has('disableDevToolsEnabled')) {
     store.set('disableDevToolsEnabled', false);
     log('info', '[Store] Initialized default disableDevToolsEnabled.');
   }
-  const minWidth = 900;
-  const minHeight = 550;
+  // Banana Jam: start as a small window just around the login box.
+  // It grows to the saved game size when the game starts (see "wz-game-mode").
   win = new BrowserWindow({
-    icon: __dirname + '/gui/images/icon.png',
-    minWidth,
-    minHeight,
-    width: store.get("window.width") || 1440,
-    height: store.get("window.height") || 880,
-    x: store.get("window.x") || 0,
-    y: store.get("window.y") || 0,
+    // Banana Jam: no icon here, so it keeps the normal Animal Jam icon
+    minWidth: WZ_COMPACT.minWidth,
+    minHeight: WZ_COMPACT.minHeight,
+    width: WZ_COMPACT.width,
+    height: WZ_COMPACT.height,
+    center: true,
     useContentSize: true,
     resizable: true,
     webPreferences: {
@@ -1274,18 +1502,21 @@ app.whenReady().then(async () => {
       plugins: true,
     },
     autoHideMenuBar: true,
-    fullscreen: store.get("window.state") === "fullScreen",
+    fullscreen: false,
     fullscreenable: true,
-    backgroundColor: "#F5C86D",
+    // Banana Jam: no Windows frame; the page draws its own Windows 7 style title bar (always on, also in the game)
+    frame: false,
+    // Banana Jam: the saved Light / Dark colour while the page loads (no flash of another look); window shows once it is ready
+    backgroundColor: require('./bjShared').startColour(app, 'game'),
+    show: false,
   });
+  {
+    const wzShowNow = () => { try { if (win && !win.isDestroyed() && !win.isVisible()) win.show(); } catch (e) {} };
+    win.once("ready-to-show", wzShowNow);
+    setTimeout(wzShowNow, 4000);
+  }
   win.setMenu(null);
-  const winState = store.get("window.state");
-  if (winState === "fullScreen") {
-    win.setFullScreen(true);
-  }
-  else if (winState === "maximized") {
-    win.maximize();
-  }
+  wzWatchWindowState();
   if (config.clearCache) {
     if (win.webContents && !win.isDestroyed()) {
       win.webContents.session.clearCache(() => {});
@@ -1306,7 +1537,7 @@ app.whenReady().then(async () => {
     }
   });
   win.on("resize", () => {
-    if (win) {
+    if (win && wzInGame && !win.isMaximized() && !win.isFullScreen()) {
       const bounds = win.getBounds();
       store.set("window.width", bounds.width);
       store.set("window.height", bounds.height);
@@ -1339,6 +1570,23 @@ ipcMain.handle('set-user-agent', async (event, userAgent) => {
     console.warn('[Tester Integration] Invalid User-Agent received for session:', userAgent);
     return false;
   }
+});
+
+// Banana Jam: the Mod Menu style editor's "Choose a picture" opens a normal Windows file picker
+ipcMain.handle("bj-pick-image", async () => {
+  try {
+    const r = await dialog.showOpenDialog(win && !win.isDestroyed() ? win : undefined, {
+      title: "Choose a picture for the Mod Menu",
+      properties: ["openFile"],
+      filters: [{ name: "Pictures", extensions: ["png", "jpg", "jpeg", "gif", "bmp", "webp"] }],
+    });
+    if (r.canceled || !r.filePaths || !r.filePaths[0]) return null;
+    const fs = require("fs");
+    const file = r.filePaths[0];
+    if (fs.statSync(file).size > 15 * 1024 * 1024) return { error: "That picture is too big (15 MB max)." };
+    const ext = (file.split(".").pop() || "png").toLowerCase().replace("jpg", "jpeg");
+    return { data: `data:image/${ext};base64,` + fs.readFileSync(file).toString("base64") };
+  } catch (e) { return { error: "Could not open that picture." }; }
 });
 
 ipcMain.handle("get-setting", async (event, key) => {

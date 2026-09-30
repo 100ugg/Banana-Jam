@@ -160,6 +160,61 @@ module.exports = class Dispatch {
      */
     this.PluginTypes = PluginTypes
 
+    // Banana Jam: answer the in-game Mod Menu (list plugins, open or close a plugin window)
+    try {
+      const { ipcRenderer } = require('electron')
+      ipcRenderer.on('bj-plugins-request', async (event, req) => {
+        let data = { success: false }
+        try {
+          const openNames = (await ipcRenderer.invoke('get-open-plugin-windows')) || []
+          const target = req && req.action === 'toggle' ? this.plugins.get(req.name) : null
+          let nowOpen = null
+          if (target && target.configuration && target.configuration.type === 'ui') {
+            if (openNames.includes(req.name)) {
+              // Off: stop what the plugin is doing first, then close its window
+              try { await ipcRenderer.invoke('bj-plugin-call', req.name, 'bjPluginStop') } catch (e) {}
+              await ipcRenderer.invoke('close-plugin-windows', [req.name])
+              nowOpen = false
+            } else {
+              // On: open the plugin and start it (if it can be started), once its window has loaded
+              this.open(req.name)
+              nowOpen = true
+              ;(async () => {
+                for (let i = 0; i < 12; i++) {
+                  await new Promise((r) => setTimeout(r, 800))
+                  let r = 'error'
+                  try { r = await ipcRenderer.invoke('bj-plugin-call', req.name, 'bjPluginStart') } catch (e) {}
+                  if (r === 'ok' || r === 'failed') break
+                  if (i >= 8) break
+                }
+              })()
+            }
+          }
+          const disabled = this.pluginManager && this.pluginManager.getDisabledPlugins ? this.pluginManager.getDisabledPlugins() : new Set()
+          if (target && target.configuration && target.configuration.type !== 'ui' && this.pluginManager && this.pluginManager.setPluginDisabled) {
+            this.pluginManager.setPluginDisabled(req.name, !disabled.has(req.name))
+            if (disabled.has(req.name)) disabled.delete(req.name); else disabled.add(req.name)
+          }
+          const list = []
+          this.plugins.forEach((plugin, name) => {
+            const c = plugin.configuration || {}
+            list.push({
+              name,
+              type: c.type === 'ui' ? 'ui' : 'game',
+              version: c.version ? String(c.version) : '',
+              author: c.author ? String(c.author) : '',
+              description: c.description ? String(c.description) : '',
+              open: c.type === 'ui' ? (req && name === req.name && nowOpen !== null ? nowOpen : openNames.includes(name)) : !disabled.has(name)
+            })
+          })
+          data = { success: true, plugins: list }
+        } catch (err) {
+          data = { success: false }
+        }
+        ipcRenderer.send('bj-plugins-reply', { id: req && req.id, data })
+      })
+    } catch (e) {}
+
   }
 
   /**

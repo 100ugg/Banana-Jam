@@ -206,11 +206,109 @@
         });
       }
 
-      if (this.loginScreen.modMenuBtnToggle) {
-        this.loginScreen.modMenuBtnToggle.addEventListener('change', () => {
-          const enabled = this.loginScreen.modMenuBtnToggle.checked;
-          localStorage.setItem('showModMenuButton', enabled ? 'true' : 'false');
-          document.dispatchEvent(new CustomEvent('mod-menu-btn-changed', { detail: { enabled } }));
+      if (this.loginScreen.fastModeToggle) {
+        this.loginScreen.fastModeToggle.addEventListener('change', async () => {
+          try {
+            await window.ipc.invoke('set-setting', 'fastMode', this.loginScreen.fastModeToggle.checked);
+          } catch (err) {
+            console.error('Failed to save fast mode setting:', err);
+          }
+        });
+      }
+
+      // --- Fill the window (Banana Jam) ---
+      {
+        const fillToggle = this.loginScreen.shadowRoot.getElementById('wz-fill-toggle');
+        if (fillToggle && window.GameBorder) {
+          fillToggle.checked = !!window.GameBorder.load().fill;
+          fillToggle.addEventListener('change', () => window.GameBorder.update({ fill: fillToggle.checked }));
+        }
+      }
+
+      // --- Custom Border (Banana Jam) ---
+      {
+        const root = this.loginScreen.shadowRoot;
+        const toggle = root.getElementById('game-border-enabled-toggle');
+        const box = root.getElementById('game-border-container');
+        const picker = root.getElementById('game-border-color-picker');
+        const text = root.getElementById('game-border-color-input');
+        const reset = root.getElementById('reset-game-border-btn');
+        const isHex = (v) => /^#[0-9a-fA-F]{6}$/.test(v);
+        const setBoxActive = (on) => {
+          if (!box) return;
+          box.style.opacity = on ? '1' : '0.5';
+          box.style.pointerEvents = on ? 'auto' : 'none';
+        };
+        const showColor = (hex) => {
+          if (picker) picker.value = hex;
+          if (text) text.value = hex;
+        };
+
+        if (window.GameBorder && toggle && picker && text) {
+          const cfg = window.GameBorder.load();
+          toggle.checked = cfg.enabled;
+          setBoxActive(cfg.enabled);
+          showColor(isHex(cfg.all) ? cfg.all : window.GameBorder.DEFAULT_COLOR);
+
+          toggle.addEventListener('change', () => {
+            setBoxActive(toggle.checked);
+            window.GameBorder.update({ enabled: toggle.checked });
+          });
+          picker.addEventListener('input', () => {
+            text.value = picker.value;
+            window.GameBorder.update({ all: picker.value });
+          });
+          text.addEventListener('input', () => {
+            let v = text.value.trim();
+            if (v && v[0] !== '#') v = '#' + v;
+            if (isHex(v)) {
+              picker.value = v;
+              window.GameBorder.update({ all: v });
+            }
+          });
+          if (reset) {
+            reset.addEventListener('click', () => {
+              showColor(window.GameBorder.DEFAULT_COLOR);
+              window.GameBorder.update({ all: window.GameBorder.DEFAULT_COLOR });
+            });
+          }
+        }
+      }
+
+      {
+        const ls = this.loginScreen;
+        const modBtn = ls.shadowRoot && ls.shadowRoot.getElementById('wz-mod-btn');
+        if (modBtn) modBtn.addEventListener('click', () => document.dispatchEvent(new CustomEvent('mod-menu-toggle')));
+        // Light / dark quick button: one switch for the launcher, this window and the Mod Menu
+        const modeBtn = ls.shadowRoot && ls.shadowRoot.getElementById('wz-mode-btn');
+        if (modeBtn && window.WzMode) {
+          const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+          const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+          const paintMode = () => {
+            const dark = window.WzMode.get() === 'dark';
+            modeBtn.innerHTML = dark ? SUN : MOON;
+            modeBtn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+            modeBtn.setAttribute('aria-label', modeBtn.title);
+          };
+          modeBtn.addEventListener('click', () => window.WzMode.toggle());
+          window.WzMode.onChange(paintMode);
+          paintMode();
+        }
+        // Game UI: off hides the little buttons over the game; the mouse near the bottom-left corner brings them back
+        ls.classList.toggle('wz-ui-off', localStorage.getItem('wzGameUi') === 'false');
+        document.addEventListener('mousemove', (e) => {
+          if (!ls.classList.contains('wz-ui-off')) return;
+          const near = e.clientX < 90 && e.clientY > window.innerHeight - 250;
+          if (near !== ls.classList.contains('wz-ui-peek')) ls.classList.toggle('wz-ui-peek', near);
+        });
+      }
+
+      if (this.loginScreen.gameUiToggle) {
+        this.loginScreen.gameUiToggle.addEventListener('change', () => {
+          const enabled = this.loginScreen.gameUiToggle.checked;
+          localStorage.setItem('wzGameUi', enabled ? 'true' : 'false');
+          this.loginScreen.classList.toggle('wz-ui-off', !enabled);
+          if (enabled) this.loginScreen.classList.remove('wz-ui-peek');
         });
       }
 
@@ -218,6 +316,8 @@
         this.loginScreen.darkModeToggle.addEventListener('change', async () => {
           try {
             const isDarkMode = this.loginScreen.darkModeToggle.checked;
+            // one switch for the whole program: the launcher, this window and the Mod Menu all follow
+            if (window.WzMode) { window.WzMode.set(isDarkMode ? 'dark' : 'light'); return; }
             await window.ipc.invoke('set-setting', 'darkMode', isDarkMode);
             this.uiManager.toggleDarkMode(isDarkMode);
           } catch (err) {

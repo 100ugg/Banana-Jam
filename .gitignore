@@ -12,10 +12,13 @@ memory/
 .claude
 CLAUDE.md
 
-
 settings.json
 dev-app-update.yml
 api-port.txt
 
 UsernameLogger
 plugin_packages/
+
+# old game-editing work folders (never upload)
+ffdec-export/
+swf-edit/

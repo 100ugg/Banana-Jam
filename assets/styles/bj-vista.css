@@ -1,0 +1,1101 @@
+/*
+ * Banana Jam launcher: Windows Vista / 7 (Aero) look.
+ *
+ * Every colour comes from a --bj-* variable. bj-launcher-theme.js sets them
+ * from the theme settings (and picks light or dark text to match).
+ * The values below are the Banana Jam default look.
+ */
+:root {
+  --bj-main: #b07a3c;
+  --bj-header: #bccb8e;   --bj-header-text: #1f2a10;
+  --bj-tab: #b07a3c;      --bj-tab-text: #ffffff;
+  --bj-btn: #b07a3c;      --bj-btn-text: #ffffff;
+  --bj-accent: #b8621f;
+  --bj-bg: #f5f0de;       --bj-bg-fill: #f5f0de;
+  --bj-text: #4a3526;     --bj-muted: rgba(74, 53, 38, 0.62);
+  --bj-line: rgba(110, 75, 55, 0.22);
+  --bj-hover: rgba(94, 67, 8, 0.08);
+  --bj-field: #fffbf2;    --bj-field-line: #b3a58a;
+  --bj-panel: #fbf4e2;
+  --bj-ptext: #4a3526;    --bj-pmuted: rgba(74, 53, 38, 0.62);
+  --bj-pline: rgba(110, 75, 55, 0.22);
+  --bj-phover: rgba(94, 67, 8, 0.08);
+  --bj-pfield: #fffbf2;   --bj-pfield-line: #b3a58a;
+  --bj-font: "Segoe UI", Tahoma, Verdana, "DejaVu Sans", sans-serif;
+}
+
+/* silver buttons on a light surface, dark glass buttons on a dark one */
+html.bj-light, html.bj-plight .modal-container, html.bj-plight .bj-pop {
+  --bj-face: linear-gradient(180deg, #f6f6f6 0%, #ebebeb 48%, #dddddd 50%, #cfcfcf 100%);
+  --bj-face-hover: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 48%, #bee6fd 50%, #a7d9f5 100%);
+  --bj-face-down: linear-gradient(180deg, #e5f4fc 0%, #c4e5f6 48%, #98d1ef 50%, #68b3db 100%);
+  --bj-face-line: #707070;  --bj-face-line-hover: #3c7fb1;  --bj-face-text: #1e1e1e;
+  --bj-face-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+}
+html.bj-plight { --bj-pglow: color-mix(in srgb, var(--bj-panel) 50%, white); }
+html.bj-pdark  { --bj-pglow: color-mix(in srgb, var(--bj-panel) 86%, white); }
+html.bj-dark, html.bj-pdark .modal-container, html.bj-pdark .bj-pop {
+  --bj-face: linear-gradient(180deg, rgba(255,255,255,.17) 0%, rgba(255,255,255,.09) 48%, rgba(255,255,255,.03) 50%, rgba(255,255,255,.08) 100%);
+  --bj-face-hover: linear-gradient(180deg, rgba(120,190,255,.38) 0%, rgba(90,160,235,.26) 48%, rgba(60,130,215,.16) 50%, rgba(90,160,235,.3) 100%);
+  --bj-face-down: linear-gradient(180deg, rgba(60,130,215,.35) 0%, rgba(60,130,215,.45) 100%);
+  --bj-face-line: rgba(255, 255, 255, 0.28);  --bj-face-line-hover: #6fb4ee;  --bj-face-text: #f0f0f0;
+  --bj-face-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- page, fonts, background picture ---------- */
+html, body { font-family: var(--bj-font) !important; }
+body { background: var(--bj-bg) !important; color: var(--bj-text) !important; }
+.font-mono, pre, code { font-family: Consolas, "Lucida Console", ui-monospace, monospace !important; }
+
+#bjBgPic { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; display: none; }
+html.bj-has-pic #bjBgPic { display: block; }
+#bjBgPicInner { position: absolute; inset: 0; transform: scale(var(--bj-pic-scale, 1)); transform-origin: var(--bj-pic-x, 50%) var(--bj-pic-y, 50%); }
+#bjBgPicImg {
+  position: absolute; inset: 0;
+  background-image: var(--bj-pic); background-size: cover; background-repeat: no-repeat;
+  background-position: var(--bj-pic-x, 50%) var(--bj-pic-y, 50%);
+  filter: blur(var(--bj-pic-blur, 0px));
+  transform: scale(var(--bj-pic-sx, 1), var(--bj-pic-sy, 1));
+}
+#mainContent { position: relative; z-index: 1; }
+
+/* ---------- colours for the old dark classes ---------- */
+.bg-primary-bg, .bg-secondary-bg, .bg-sidebar-bg { background-color: var(--bj-bg-fill) !important; }
+#mainContent { background-color: var(--bj-bg-fill) !important; }
+.text-sidebar-text, .text-text-primary, .text-gray-300, .text-gray-200 { color: var(--bj-text) !important; }
+.text-gray-400, .text-gray-500, .text-gray-600 { color: var(--bj-muted) !important; }
+.placeholder-text-primary::placeholder, input::placeholder { color: var(--bj-muted) !important; opacity: 1; }
+.border-sidebar-border, .border-tertiary-bg { border-color: var(--bj-line) !important; }
+.bg-tertiary-bg, [class*="bg-tertiary-bg/"], .hover\:bg-tertiary-bg:hover, .group:hover .group-hover\:bg-tertiary-bg,
+[class*="bg-gray-700/"], [class*="bg-primary-bg/"] { background-color: var(--bj-hover) !important; }
+html.bj-light .text-white:not([class*="bg-"]), html.bj-light .hover\:text-white:hover { color: var(--bj-text) !important; }
+html.bj-light .text-highlight-yellow, html.bj-light .text-yellow-400, html.bj-light .hover\:text-highlight-yellow:hover { color: #946200 !important; }
+html.bj-light .text-highlight-green, html.bj-light .hover\:text-highlight-green:hover { color: #2d7a00 !important; }
+html.bj-light .text-blue-400, html.bj-light .hover\:text-blue-400:hover { color: #1f5fb4 !important; }
+html.bj-light .text-purple-400 { color: #6b35b8 !important; }
+html.bj-light .text-teal-400 { color: #0f7d74 !important; }
+html.bj-light .text-error-red { color: #c1271a !important; }
+
+/* ---------- title bar (header) as Aero glass ---------- */
+#header {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-header) 45%, white) 0%,
+    color-mix(in srgb, var(--bj-header) 78%, white) 48%,
+    var(--bj-header) 50%,
+    color-mix(in srgb, var(--bj-header) 82%, black) 100%) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--bj-header) 45%, black) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+  color: var(--bj-header-text) !important;
+  padding: 6px 8px !important;
+}
+
+/* PLAY / Network / Plugins: a row of joined glossy buttons */
+#bjTabs {
+  border: 1px solid rgba(0, 0, 0, 0.5) !important; border-radius: 4px !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+#bjTabs > button {
+  background: linear-gradient(180deg, #f6f6f6 0%, #ebebeb 48%, #dddddd 50%, #cfcfcf 100%) !important;
+  color: #1e1e1e !important; font-weight: 600 !important; font-size: 12px !important;
+  padding: 5px 14px !important; border-left: 1px solid rgba(0, 0, 0, 0.35) !important; transition: none !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+#bjTabs > button:first-child { border-left: none !important; }
+#bjTabs > button:hover { background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 48%, #bee6fd 50%, #a7d9f5 100%) !important; }
+#bjTabs > button.tab-button.active {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-tab) 55%, white) 0%,
+    color-mix(in srgb, var(--bj-tab) 80%, white) 48%,
+    var(--bj-tab) 50%,
+    color-mix(in srgb, var(--bj-tab) 85%, white) 100%) !important;
+  color: var(--bj-tab-text) !important; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 0 6px rgba(0, 0, 0, 0.2);
+}
+#bjTabs > #playGameBtn {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-btn) 55%, white) 0%,
+    color-mix(in srgb, var(--bj-btn) 80%, white) 48%,
+    var(--bj-btn) 50%,
+    color-mix(in srgb, var(--bj-btn) 85%, white) 100%) !important;
+  color: var(--bj-btn-text) !important; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+#bjTabs > #playGameBtn:hover { filter: brightness(1.1); }
+#bjTabs > #playGameBtn svg { color: currentColor !important; }
+#bjTabs .active-indicator { display: none !important; }
+
+/* window buttons: like the Windows 7 caption buttons */
+#header #settingsHeaderBtn {
+  width: 28px; height: 22px; padding: 0 !important; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.5) !important; border-radius: 3px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.75) 0%, rgba(255,255,255,.35) 48%, rgba(255,255,255,.1) 50%, rgba(255,255,255,.35) 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  color: #1e1e1e !important; font-size: 11px;
+}
+#header #settingsHeaderBtn:hover {
+  background: linear-gradient(180deg, #eaf6fd 0%, #d9f0fc 48%, #bee6fd 50%, #a7d9f5 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 0 6px rgba(120, 190, 255, 0.9);
+}
+/* window buttons (their look comes from wz-style.js: Vista, Windows 11, Mac, Bubble, Comic or Windows 98) */
+#header .wzcaps { --wzcap-h: 42px; margin: -6px -8px -6px 8px; color: var(--bj-header-text); }
+.wzb-vista #header .wzcaps { align-self: flex-start; }
+.wzb-mac #header .wzcaps, .wzb-bubble #header .wzcaps, .wzb-comic #header .wzcaps, .wzb-retro #header .wzcaps { margin: 0 0 0 8px; }
+#fullscreenButton:has(i.fa-window-restore) .g-max { display: none; }
+#fullscreenButton:has(i.fa-window-restore) .g-restore { display: block; }
+
+/* the help "?" button */
+.bj-help-btn {
+  width: 22px; height: 22px; margin-right: 4px; border-radius: 50%; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #0d3f80;
+  background: radial-gradient(circle at 35% 28%, #b5dcff 0%, #3a8ee6 50%, #1a58ad 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: #fff; font: italic 700 14px Georgia, "Times New Roman", serif; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+  -webkit-app-region: no-drag;
+}
+.bj-help-btn:hover { filter: brightness(1.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), 0 0 8px rgba(80, 170, 255, 0.85); }
+
+/* ---------- toolbars (Network and Plugins) like the Explorer command bar ---------- */
+#packet-logging > div:first-child, #plugins > div:first-child, #inlinePluginHeader {
+  background: linear-gradient(180deg, var(--bj-pglow) 0%, var(--bj-panel) 100%) !important;
+  border-bottom: 1px solid var(--bj-pline) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+#plugins > div:first-child { border: 1px solid var(--bj-pline) !important; border-radius: 4px; margin-bottom: 10px !important; padding: 5px 8px !important; }
+#packet-logging > div:first-child button, #plugins > div:first-child button, #inlinePluginHeader button,
+#consoleToggleButton, #clearConsoleButton, #netSettingsFilterAdd, #netSettingsFilterClearAll, .swf-action-btn {
+  background: var(--bj-face) !important;
+  border: 1px solid var(--bj-face-line) !important; border-radius: 3px !important;
+  box-shadow: var(--bj-face-inset) !important;
+  color: var(--bj-face-text) !important;
+  transition: none !important;
+}
+#packet-logging > div:first-child button:hover, #plugins > div:first-child button:hover, #inlinePluginHeader button:hover,
+#consoleToggleButton:hover, #clearConsoleButton:hover, #netSettingsFilterAdd:hover, #netSettingsFilterClearAll:hover, .swf-action-btn:hover {
+  background: var(--bj-face-hover) !important; border-color: var(--bj-face-line-hover) !important;
+}
+#packet-logging > div:first-child button:active, #plugins > div:first-child button:active { background: var(--bj-face-down) !important; }
+#clearPacketLogButton i, #clearConsoleButton i { color: #c1341a !important; }
+#plugins > div:first-child button { margin: 0 1px; }
+
+/* All / In / Out: joined buttons, the chosen one is glossy */
+#packet-logging > div:first-child .rounded-lg.overflow-hidden { border: none !important; border-radius: 3px !important; }
+#filterAllButton, #filterIncomingButton, #filterOutgoingButton { border-radius: 0 !important; margin-left: -1px; }
+#filterAllButton { border-radius: 3px 0 0 3px !important; margin-left: 0; }
+#filterOutgoingButton { border-radius: 0 3px 3px 0 !important; }
+#filterAllButton.active, #filterIncomingButton.active, #filterOutgoingButton.active {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-tab) 55%, white) 0%,
+    color-mix(in srgb, var(--bj-tab) 80%, white) 48%,
+    var(--bj-tab) 50%,
+    color-mix(in srgb, var(--bj-tab) 85%, white) 100%) !important;
+  border-color: color-mix(in srgb, var(--bj-tab) 55%, black) !important;
+  color: var(--bj-tab-text) !important; position: relative; z-index: 1;
+}
+#packet-logging > div:first-child .rounded-lg:not(.overflow-hidden) {
+  background: var(--bj-pfield) !important; border: 1px solid var(--bj-pfield-line) !important; border-radius: 3px !important;
+}
+
+/* ---------- text boxes and drop-downs ---------- */
+#packetSearch, #input, .modal-input, select, input[type="number"], input[type="text"]:not(.wzcp-hex) {
+  background: var(--bj-field) !important;
+  border: 1px solid var(--bj-field-line) !important; border-top-color: color-mix(in srgb, var(--bj-field-line) 70%, black) !important;
+  border-radius: 3px !important; color: var(--bj-text) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+#packetSearch:focus, #input:focus, .modal-input:focus, select:focus, input[type="number"]:focus, input[type="text"]:focus {
+  outline: none !important;
+  border-color: color-mix(in srgb, var(--bj-accent) 70%, #3d7bad) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bj-accent) 35%, transparent) !important;
+}
+.modal-container .modal-input, .modal-container select, .modal-container input[type="text"], .modal-container input[type="number"],
+.bj-pop select, .bj-pop input[type="text"], .bj-pop input[type="number"] {
+  background: var(--bj-pfield) !important; border-color: var(--bj-pfield-line) !important; color: var(--bj-ptext) !important;
+}
+/* the open drop-down list always uses the same colours as its box (never light text on a white list) */
+/* (solid colours: the box colour can be see-through, and a see-through list shows up white) */
+select option, select optgroup { background-color: var(--bj-bg); color: var(--bj-text); }
+.modal-container select option, .modal-container select optgroup, .bj-pop select option, .bj-pop select optgroup { background-color: var(--bj-panel); color: var(--bj-ptext); }
+input[type="color"] {
+  border: 1px solid var(--bj-face-line, #707070) !important; border-radius: 3px !important; padding: 2px !important;
+  background: var(--bj-face, #eee) !important; cursor: pointer;
+}
+
+/* ---------- plugin tiles as little group boxes ---------- */
+.plugin-grid-tile {
+  background: linear-gradient(180deg, var(--bj-pglow) 0%, var(--bj-panel) 100%) !important;
+  border: 1px solid var(--bj-pline) !important; border-left-width: 3px !important; border-radius: 4px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 2px rgba(0, 0, 0, 0.08);
+  color: var(--bj-ptext) !important;
+}
+.plugin-grid-tile .text-gray-400, .plugin-grid-tile .text-gray-500 { color: var(--bj-pmuted) !important; }
+.plugin-grid-tile:hover {
+  border-color: color-mix(in srgb, var(--bj-accent) 55%, #7da2ce) !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bj-accent) 6%, white) 0%, color-mix(in srgb, var(--bj-accent) 16%, var(--bj-panel)) 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 0 6px color-mix(in srgb, var(--bj-accent) 35%, transparent);
+}
+.plugin-icon-container { background: var(--bj-face) !important; border: 1px solid var(--bj-face-line); box-shadow: var(--bj-face-inset); color: var(--bj-face-text); }
+
+/* ---------- messages (network and console) ---------- */
+#message-log > div, #messages > div { border-radius: 3px !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25) !important; }
+
+/* ---------- bottom bar ---------- */
+footer {
+  background: linear-gradient(180deg, var(--bj-pglow) 0%, var(--bj-panel) 100%) !important;
+  border-top: 1px solid var(--bj-pline);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+footer .text-gray-400, footer .text-text-primary { color: var(--bj-pmuted) !important; }
+#consoleToggleBar { background: var(--bj-pline) !important; }
+#consoleDrawer { background: var(--bj-bg-fill); border-top: 1px solid var(--bj-pline); }
+#appVersionDisplay { color: var(--bj-accent) !important; }
+#fruitIcon { filter: none !important; }
+
+/* ---------- windows (settings and the other pop-up windows) ---------- */
+.modal-backdrop { background: rgba(0, 0, 0, 0.35) !important; }
+.modal-container {
+  background: var(--bj-panel) !important; color: var(--bj-ptext) !important;
+  border: 1px solid rgba(0, 0, 0, 0.55) !important; border-radius: 8px !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35) inset,
+              0 0 0 6px color-mix(in srgb, var(--bj-header) 60%, rgba(255, 255, 255, 0.5)),
+              0 0 0 7px rgba(0, 0, 0, 0.45),
+              0 16px 40px rgba(0, 0, 0, 0.45) !important;
+}
+.modal-header {
+  padding: 8px 10px 8px 14px !important;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-header) 45%, white) 0%,
+    color-mix(in srgb, var(--bj-header) 78%, white) 48%,
+    var(--bj-header) 50%,
+    color-mix(in srgb, var(--bj-header) 85%, white) 100%) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--bj-header) 45%, black) !important;
+}
+.modal-header-title { color: var(--bj-header-text) !important; font-size: 14px !important; text-shadow: 0 0 8px rgba(255, 255, 255, 0.7); }
+.modal-header .modal-section-icon { color: var(--bj-header-text) !important; }
+/* the close button on windows (its look comes from wz-style.js) */
+.modal-header { align-items: flex-start !important; }
+.modal-header .modal-close-btn.wzcap { --wzcap-h: 38px; margin: -8px -10px -8px auto; color: var(--bj-header-text); }
+.wzb-mac .modal-header .modal-close-btn.wzcap { margin: 4px 4px 0 auto; order: 0; }
+.wzb-bubble .modal-header .modal-close-btn.wzcap, .wzb-comic .modal-header .modal-close-btn.wzcap, .wzb-retro .modal-header .modal-close-btn.wzcap { margin: 0 -2px 0 auto; }
+.wzb-vista .modal-header .modal-close-btn.wzcap { border-bottom-left-radius: 5px; border-left: 1px solid rgba(0, 0, 0, 0.55); }
+.modal-container .text-text-primary, .modal-container .text-sidebar-text, .modal-container .text-gray-300 { color: var(--bj-ptext) !important; }
+.modal-container .text-gray-400, .modal-container .text-gray-500 { color: var(--bj-pmuted) !important; }
+.modal-container .border-sidebar-border { border-color: var(--bj-pline) !important; }
+.modal-container .bg-tertiary-bg, .modal-container [class*="bg-tertiary-bg/"] { background-color: var(--bj-phover) !important; }
+
+/* tabs */
+.modal-tab-bar { background: color-mix(in srgb, var(--bj-panel) 90%, black) !important; border-bottom: 1px solid var(--bj-pline) !important; padding: 6px 8px 0 !important; gap: 2px; }
+.modal-tab {
+  padding: 4px 12px !important; margin-bottom: 4px; font-size: 12.5px !important;
+  background: var(--bj-face) !important; color: var(--bj-face-text) !important;
+  border: 1px solid var(--bj-face-line) !important; border-radius: 3px !important;
+}
+.modal-tab:hover { background: var(--bj-face-hover) !important; }
+.modal-tab.active {
+  background: var(--bj-panel) !important; color: var(--bj-accent) !important; font-weight: 700 !important;
+  border-color: var(--bj-accent) !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  padding-top: 4px !important; margin-top: 0;
+}
+.modal-tab .tab-underline { display: none !important; }
+
+/* group boxes and headings */
+.modal-section-title { color: var(--bj-accent) !important; font-weight: 700 !important; border-bottom-color: var(--bj-pline) !important; }
+.modal-section-icon { color: var(--bj-accent) !important; }
+.modal-setting-row {
+  background: linear-gradient(180deg, var(--bj-pglow) 0%, var(--bj-panel) 100%) !important;
+  border: 1px solid var(--bj-pline) !important; border-radius: 4px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+html.bj-pdark .modal-setting-row, html.bj-dark .plugin-grid-tile, html.bj-dark footer,
+html.bj-dark #packet-logging > div:first-child, html.bj-dark #plugins > div:first-child {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+/* buttons in windows */
+.modal-btn-primary, .modal-btn-success, #saveSettingsBtn {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-btn) 55%, white) 0%,
+    color-mix(in srgb, var(--bj-btn) 80%, white) 48%,
+    var(--bj-btn) 50%,
+    color-mix(in srgb, var(--bj-btn) 85%, white) 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--bj-btn) 55%, black) !important; border-radius: 3px !important;
+  color: var(--bj-btn-text) !important; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45) !important; transform: none !important;
+}
+.modal-btn-primary:hover, .modal-btn-success:hover, #saveSettingsBtn:hover { filter: brightness(1.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 6px color-mix(in srgb, var(--bj-btn) 60%, transparent) !important; }
+.modal-btn-secondary {
+  background: var(--bj-face) !important; border: 1px solid var(--bj-face-line) !important; border-radius: 3px !important;
+  color: var(--bj-face-text) !important; box-shadow: var(--bj-face-inset);
+}
+.modal-btn-secondary:hover { background: var(--bj-face-hover) !important; border-color: var(--bj-face-line-hover) !important; }
+.modal-btn-danger {
+  background: linear-gradient(180deg, #f0a28e 0%, #d8492e 49%, #c1341a 50%, #e76b4b 100%) !important;
+  border: 1px solid #7d1d0e !important; border-radius: 3px !important; color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* on / off switches: glossy */
+.toggle-switch {
+  background: var(--bj-face) !important; border: 1px solid var(--bj-face-line);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.peer:checked ~ .toggle-switch {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-btn) 55%, white) 0%,
+    color-mix(in srgb, var(--bj-btn) 80%, white) 48%,
+    var(--bj-btn) 50%,
+    color-mix(in srgb, var(--bj-btn) 85%, white) 100%) !important;
+  border-color: color-mix(in srgb, var(--bj-btn) 55%, black);
+}
+.toggle-switch::after { top: 2px !important; left: 2px !important; background: linear-gradient(180deg, #ffffff, #dcdcdc) !important; box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.35) !important; }
+
+/* ---------- pop-up menus and panels ---------- */
+#pluginSettingsPopover, #networkSettingsPopover, .popover-panel, .plugin-context-menu, .plugin-icon-picker, .ui-autocomplete, .bj-pop {
+  background: var(--bj-panel) !important; color: var(--bj-ptext) !important;
+  border: 1px solid #979797 !important; border-radius: 3px !important;
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.4) !important;
+}
+#pluginSettingsPopover .text-text-primary, #networkSettingsPopover .text-text-primary, .plugin-context-menu, .ui-autocomplete li { color: var(--bj-ptext) !important; }
+#pluginSettingsPopover .text-gray-400, #pluginSettingsPopover .text-gray-500, #networkSettingsPopover .text-gray-400, #networkSettingsPopover .text-gray-500 { color: var(--bj-pmuted) !important; }
+.plugin-context-menu-item:hover, .ui-autocomplete .ui-state-active, .ui-autocomplete .ui-menu-item-wrapper:hover {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bj-accent) 8%, white) 0%, color-mix(in srgb, var(--bj-accent) 20%, white) 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--bj-accent) 40%, white) !important; border-radius: 3px; color: #1e1e1e !important;
+}
+
+/* the launcher's own hover tips */
+.sj-tooltip.sj-tooltip-default {
+  background: linear-gradient(180deg, #ffffff 0%, #e4e5f0 100%) !important;
+  border: 1px solid #767676 !important; border-radius: 3px !important; color: #4c4c4c !important;
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3) !important; font-family: var(--bj-font) !important;
+}
+
+/* ---------- scroll bars ---------- */
+.themed-scrollbar::-webkit-scrollbar, ::-webkit-scrollbar { width: 14px; height: 14px; }
+.themed-scrollbar::-webkit-scrollbar-track, ::-webkit-scrollbar-track {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bj-panel) 80%, black) 0%, color-mix(in srgb, var(--bj-panel) 92%, black) 100%) !important;
+  border-radius: 0 !important;
+}
+.themed-scrollbar::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #f3f3f3 0%, #e2e2e2 45%, #d0d0d0 55%, #c6c6c6 100%) !important;
+  border: 1px solid #8e8f8f; border-radius: 3px !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+.themed-scrollbar::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #e3f4fc 0%, #c7e8fa 45%, #a9d9f5 55%, #9dd0ee 100%) !important;
+  border-color: #3c7fb1;
+}
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* ---------- Theme tab in Settings (made by bj-launcher-theme.js) ---------- */
+.bjt { font-size: 13px; color: var(--bj-ptext); }
+.bjt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.bjt-row:last-child { margin-bottom: 0; }
+.bjt-label { flex: 1; min-width: 0; }
+.bjt-hint { font-size: 11.5px; color: var(--bj-pmuted); margin: 2px 0 6px; min-height: 14px; }
+.bjt-sub { font-size: 11.5px; font-weight: 700; color: var(--bj-pmuted); margin: 10px 0 6px; text-transform: uppercase; letter-spacing: .5px; }
+.bjt-sub:first-child { margin-top: 0; }
+.bjt-sec {
+  margin-bottom: 10px; border: 1px solid var(--bj-pline); border-radius: 4px;
+  background: linear-gradient(180deg, var(--bj-pglow) 0%, var(--bj-panel) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+html.bj-pdark .bjt-sec { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+.bjt-head {
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;
+  padding: 8px 10px; font-weight: 700; color: var(--bj-accent); font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase;
+}
+.bjt-head:hover { background: color-mix(in srgb, var(--bj-accent) 7%, transparent); }
+.bjt-chev { font-size: 18px; line-height: 1; color: var(--bj-pmuted); }
+.bjt-body { padding: 2px 10px 10px; }
+.bjt-sec > .bjt-body { display: none; }
+.bjt-off { opacity: .5; pointer-events: none; }
+.bjt input[type="text"], .bjt select { flex: 1; min-width: 0; height: 26px; padding: 0 7px !important; font-size: 12.5px; }
+.bjt input[type="color"] { width: 40px; height: 24px; flex-shrink: 0; }
+.bjt-btn {
+  height: 25px; padding: 0 11px; cursor: pointer; font-size: 12px; white-space: nowrap;
+  background: var(--bj-face); border: 1px solid var(--bj-face-line); border-radius: 3px;
+  color: var(--bj-face-text); box-shadow: var(--bj-face-inset);
+}
+.bjt-btn:hover { background: var(--bj-face-hover); border-color: var(--bj-face-line-hover); }
+.bjt-btn.on, .bjt-btn.main {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bj-btn) 55%, white) 0%,
+    color-mix(in srgb, var(--bj-btn) 80%, white) 48%,
+    var(--bj-btn) 50%,
+    color-mix(in srgb, var(--bj-btn) 85%, white) 100%);
+  border-color: color-mix(in srgb, var(--bj-btn) 55%, black); color: var(--bj-btn-text);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.bjt-rst { width: 26px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bjt-rst svg { width: 13px; height: 13px; }
+.bjt-rst.is-default { opacity: .3; cursor: default; pointer-events: none; }
+.bjt-lock { width: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bjt-lock svg { width: 14px; height: 14px; }
+.bjt-lock .bjt-open { display: none; }
+.bjt-part.is-auto .bjt-lock { opacity: .45; background: var(--bj-face); border-color: var(--bj-face-line); color: var(--bj-face-text); text-shadow: none; }
+.bjt-part.is-auto .bjt-lock .bjt-open { display: block; }
+.bjt-part.is-auto .bjt-lock .bjt-closed { display: none; }
+.bjt-part.is-auto input[type="color"] { opacity: .55; }
+.bjt-range { flex: 1; min-width: 0; -webkit-appearance: none; appearance: none; height: 5px; border-radius: 3px; border: 1px solid #8e8f8f; background: linear-gradient(180deg, #e7e7e7, #fdfdfd); outline: none; }
+.bjt-range::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 11px; height: 19px; border-radius: 2px; cursor: pointer;
+  border: 1px solid #707070; background: linear-gradient(180deg, #f6f6f6 0%, #e1e1e1 50%, #cdcdcd 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+.bjt-range::-webkit-slider-thumb:hover { border-color: #3c7fb1; background: linear-gradient(180deg, #eaf6fd 0%, #bee6fd 50%, #a7d9f5 100%); }
+.bjt-val { width: 42px; text-align: right; font-size: 11.5px; color: var(--bj-pmuted); flex-shrink: 0; }
+.bjt-pic { width: 42px; height: 26px; object-fit: cover; border-radius: 3px; border: 1px solid var(--bj-pline); display: none; }
+.bjt-fruit { width: 24px; height: 24px; }
+
+/* My icons (your own pictures next to the fruits) */
+.bjt-icons { margin: 2px 0 8px; padding: 8px; border: 1px solid var(--bj-pline); border-radius: 4px; background: var(--bj-pfield); }
+.bjt-icons-list { display: flex; flex-wrap: wrap; gap: 6px; min-height: 34px; align-items: center; }
+.bjt-icon {
+  position: relative; width: 34px; height: 34px; border-radius: 3px; cursor: pointer; box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.3); background: linear-gradient(180deg, #ffffff, #ececec);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center;
+}
+.bjt-icon img { max-width: 26px; max-height: 26px; }
+.bjt-icon:hover { border-color: #3c7fb1; box-shadow: inset 0 0 0 1px rgba(255,255,255,.8), 0 0 5px rgba(80, 160, 230, 0.8); }
+.bjt-icon.on { border: 2px solid #3c7fb1; background: linear-gradient(180deg, #eaf6fd, #bee6fd); }
+.bjt-icon-del {
+  position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; padding: 0; border-radius: 50%;
+  border: 1px solid #7d1d0e; color: #fff; font: bold 9px/14px "Segoe UI", Tahoma, sans-serif; cursor: pointer;
+  background: linear-gradient(180deg, #f0a28e 0%, #d8492e 49%, #c1341a 50%, #e76b4b 100%); display: none;
+}
+.bjt-icon:hover .bjt-icon-del { display: block; }
+
+/* =====================================================================
+   Modern look: sleek and flat (html.wz-style-modern)
+   ===================================================================== */
+html.wz-style-modern {
+  --bj-mflat: color-mix(in srgb, var(--bj-header) 30%, var(--bj-panel));
+  --bj-mline: color-mix(in srgb, var(--bj-ptext) 14%, transparent);
+  --bj-mhover: color-mix(in srgb, var(--bj-ptext) 8%, transparent);
+  --bj-font: "Segoe UI Variable Text", "Segoe UI", Tahoma, sans-serif;
+}
+html.wz-style-modern #header {
+  background: var(--bj-mflat) !important; border-bottom: 1px solid var(--bj-mline) !important; box-shadow: none !important;
+}
+html.wz-style-modern #header .wzcaps { color: var(--bj-ptext); }
+html.wz-style-modern #bjTabs { border: none !important; border-radius: 10px !important; padding: 3px; gap: 2px; background: var(--bj-mhover); box-shadow: none; }
+html.wz-style-modern #bjTabs > button {
+  background: transparent !important; border: none !important; border-radius: 8px !important;
+  color: var(--bj-ptext) !important; text-shadow: none; font-weight: 600 !important;
+}
+html.wz-style-modern #bjTabs > button:hover { background: var(--bj-mhover) !important; }
+html.wz-style-modern #bjTabs > button.tab-button.active { background: var(--bj-panel) !important; color: var(--bj-accent) !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); text-shadow: none; }
+html.wz-style-modern #bjTabs > #playGameBtn { background: var(--bj-btn) !important; color: var(--bj-btn-text) !important; text-shadow: none; }
+html.wz-style-modern #header #settingsHeaderBtn { background: transparent !important; border: 1px solid transparent !important; border-radius: 8px !important; box-shadow: none; color: var(--bj-ptext) !important; width: 32px; height: 30px; }
+html.wz-style-modern #header #settingsHeaderBtn:hover { background: var(--bj-mhover) !important; box-shadow: none; }
+html.wz-style-modern .bj-help-btn { background: var(--bj-mhover); border: none; box-shadow: none; color: var(--bj-accent); font: 700 13px "Segoe UI", sans-serif; text-shadow: none; width: 26px; height: 26px; }
+html.wz-style-modern .bj-help-btn:hover { filter: none; background: color-mix(in srgb, var(--bj-accent) 15%, transparent); box-shadow: none; }
+
+html.wz-style-modern #packet-logging > div:first-child, html.wz-style-modern #plugins > div:first-child, html.wz-style-modern #inlinePluginHeader {
+  background: var(--bj-panel) !important; box-shadow: none !important; border-bottom: 1px solid var(--bj-mline) !important;
+}
+html.wz-style-modern #plugins > div:first-child { border: 1px solid var(--bj-mline) !important; border-radius: 12px; }
+html.wz-style-modern #packet-logging > div:first-child button, html.wz-style-modern #plugins > div:first-child button, html.wz-style-modern #inlinePluginHeader button,
+html.wz-style-modern #consoleToggleButton, html.wz-style-modern #clearConsoleButton, html.wz-style-modern #netSettingsFilterAdd, html.wz-style-modern #netSettingsFilterClearAll, html.wz-style-modern .swf-action-btn {
+  background: transparent !important; border: 1px solid var(--bj-mline) !important; border-radius: 8px !important; box-shadow: none !important; color: var(--bj-ptext) !important;
+}
+html.wz-style-modern #packet-logging > div:first-child button:hover, html.wz-style-modern #plugins > div:first-child button:hover, html.wz-style-modern #inlinePluginHeader button:hover,
+html.wz-style-modern #consoleToggleButton:hover, html.wz-style-modern #clearConsoleButton:hover, html.wz-style-modern #netSettingsFilterAdd:hover, html.wz-style-modern #netSettingsFilterClearAll:hover, html.wz-style-modern .swf-action-btn:hover {
+  background: var(--bj-mhover) !important; border-color: var(--bj-mline) !important;
+}
+html.wz-style-modern #filterAllButton, html.wz-style-modern #filterIncomingButton, html.wz-style-modern #filterOutgoingButton { border-radius: 8px !important; margin-left: 2px; }
+html.wz-style-modern #filterAllButton.active, html.wz-style-modern #filterIncomingButton.active, html.wz-style-modern #filterOutgoingButton.active {
+  background: var(--bj-tab) !important; color: var(--bj-tab-text) !important; border-color: transparent !important;
+}
+html.wz-style-modern #packetSearch, html.wz-style-modern #input, html.wz-style-modern .modal-input, html.wz-style-modern select,
+html.wz-style-modern input[type="number"], html.wz-style-modern input[type="text"]:not(.wzcp-hex) {
+  border: 1px solid var(--bj-mline) !important; border-radius: 8px !important; box-shadow: none !important;
+}
+html.wz-style-modern input[type="color"] { border-radius: 8px !important; background: var(--bj-pfield) !important; border-color: var(--bj-mline) !important; }
+html.wz-style-modern .plugin-grid-tile { background: var(--bj-panel) !important; border: 1px solid var(--bj-mline) !important; border-left-width: 1px !important; border-radius: 12px !important; box-shadow: none; }
+html.wz-style-modern .plugin-grid-tile:hover { background: var(--bj-panel) !important; border-color: var(--bj-accent) !important; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); }
+html.wz-style-modern .plugin-icon-container { background: var(--bj-mhover) !important; border: none; box-shadow: none; border-radius: 10px !important; }
+html.wz-style-modern #message-log > div, html.wz-style-modern #messages > div { border-radius: 8px !important; box-shadow: none !important; }
+html.wz-style-modern footer { background: var(--bj-panel) !important; border-top: 1px solid var(--bj-mline); box-shadow: none; }
+
+html.wz-style-modern .modal-container {
+  border: 1px solid var(--bj-mline) !important; border-radius: 14px !important; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35) !important;
+}
+html.wz-style-modern .modal-header { background: var(--bj-panel) !important; border-bottom: 1px solid var(--bj-mline) !important; }
+html.wz-style-modern .modal-header-title, html.wz-style-modern .modal-header .modal-section-icon { color: var(--bj-ptext) !important; text-shadow: none; }
+html.wz-style-modern .modal-header .modal-close-btn.wzcap { color: var(--bj-ptext); }
+html.wz-style-modern .modal-tab-bar { background: var(--bj-panel) !important; border-bottom: none !important; padding: 8px 12px 4px !important; }
+html.wz-style-modern .modal-tab { border: none !important; border-radius: 8px !important; background: transparent !important; color: var(--bj-pmuted) !important; margin: 0; padding: 5px 12px !important; }
+html.wz-style-modern .modal-tab:hover { background: var(--bj-mhover) !important; }
+html.wz-style-modern .modal-tab.active { background: var(--bj-mhover) !important; color: var(--bj-accent) !important; margin-top: 0; padding-top: 5px !important; }
+html.wz-style-modern .modal-setting-row, html.wz-style-modern .bjt-sec { background: transparent !important; border: 1px solid var(--bj-mline) !important; border-radius: 12px !important; box-shadow: none !important; }
+html.wz-style-modern .modal-btn-primary, html.wz-style-modern .modal-btn-success, html.wz-style-modern #saveSettingsBtn, html.wz-style-modern .bjt-btn.on, html.wz-style-modern .bjt-btn.main {
+  background: var(--bj-btn) !important; border: 1px solid transparent !important; border-radius: 8px !important; text-shadow: none; box-shadow: none !important; color: var(--bj-btn-text) !important;
+}
+html.wz-style-modern .modal-btn-secondary, html.wz-style-modern .bjt-btn {
+  background: var(--bj-pfield) !important; border: 1px solid var(--bj-mline) !important; border-radius: 8px !important; box-shadow: none !important; color: var(--bj-ptext) !important;
+}
+html.wz-style-modern .modal-btn-secondary:hover, html.wz-style-modern .bjt-btn:hover { background: var(--bj-mhover) !important; }
+html.wz-style-modern .toggle-switch { background: color-mix(in srgb, var(--bj-ptext) 25%, transparent) !important; border: none; box-shadow: none; }
+html.wz-style-modern .peer:checked ~ .toggle-switch { background: var(--bj-btn) !important; }
+html.wz-style-modern .toggle-switch::after { top: 3px !important; left: 3px !important; background: #ffffff !important; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important; }
+html.wz-style-modern .bjt-range { height: 4px; border: none; border-radius: 99px; background: color-mix(in srgb, var(--bj-ptext) 22%, transparent); }
+html.wz-style-modern .bjt-range::-webkit-slider-thumb, html.wz-style-modern .bjt-range::-webkit-slider-thumb:hover { width: 16px; height: 16px; border-radius: 50%; background: #ffffff; border: 2px solid var(--bj-accent); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+html.wz-style-modern .bjt-icons, html.wz-style-modern .bjt-icon { border-radius: 10px; }
+html.wz-style-modern #pluginSettingsPopover, html.wz-style-modern #networkSettingsPopover, html.wz-style-modern .popover-panel, html.wz-style-modern .plugin-context-menu,
+html.wz-style-modern .plugin-icon-picker, html.wz-style-modern .ui-autocomplete, html.wz-style-modern .bj-pop {
+  border: 1px solid var(--bj-mline) !important; border-radius: 12px !important; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22) !important;
+}
+html.wz-style-modern .sj-tooltip.sj-tooltip-default { background: #2b2b2b !important; color: #fff !important; border: none !important; border-radius: 6px !important; }
+html.wz-style-modern ::-webkit-scrollbar { width: 10px; height: 10px; }
+html.wz-style-modern ::-webkit-scrollbar-track { background: transparent !important; }
+html.wz-style-modern ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--bj-ptext) 30%, transparent) !important; border: 2px solid transparent; background-clip: padding-box !important; border-radius: 99px !important; box-shadow: none; }
+html.wz-style-modern ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--bj-ptext) 45%, transparent) !important; background-clip: padding-box !important; }
+
+/* toolbar buttons that sit inside a little wrapper were a few pixels lower than their neighbours */
+#pluginSettingsWrapper, #networkSettingsWrapper { display: flex; align-items: center; }
+/* the Credits tab uses the Banana Jam highlight colour, never the old strawberry red */
+#aboutTabContent { --theme-primary: var(--bj-accent, #b8621f); }
+/* soft line above the buttons at the bottom of pop-up windows (was a hard dark line) */
+.modal-footer { border-top-color: var(--bj-pline, rgba(0, 0, 0, 0.12)) !important; }
+
+/* =====================================================================
+   Bubble look: soft, shiny 3D with a gentle glow (html.wz-style-bubble)
+   ===================================================================== */
+html.wz-style-bubble {
+  --bub1: color-mix(in srgb, var(--bj-header) 30%, white);
+  --bub2: color-mix(in srgb, var(--bj-header) 78%, white);
+  --bub-glow: color-mix(in srgb, var(--bj-btn) 38%, transparent);
+  --bub-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 51%);
+  --bub-white: linear-gradient(180deg, #ffffff 0%, #f7f7f7 50%, #ececec 51%, #f5f5f5 100%);
+  --bub-white-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 -3px 5px rgba(0, 0, 0, 0.06), 0 3px 7px rgba(0, 0, 0, 0.12);
+  --bub-color-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.15), 0 0 14px var(--bub-glow);
+  --bub-lift-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.14), 0 0 16px var(--bub-glow);
+}
+html.wz-style-bubble.bj-pdark {
+  --bub-white: linear-gradient(180deg, #4a4a50 0%, #3f3f45 50%, #36363b 51%, #3d3d42 100%);
+  --bub-white-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+/* header strip */
+html.wz-style-bubble #header {
+  background: var(--bub-gloss), linear-gradient(180deg, var(--bub1) 0%, var(--bub2) 100%) !important;
+  border-bottom: none !important;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.06), 0 3px 14px color-mix(in srgb, var(--bj-header) 60%, transparent), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+html.wz-style-bubble #bjTabs { border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 99px !important; overflow: hidden; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 3px 8px rgba(0, 0, 0, 0.12), 0 0 14px var(--bub-glow); }
+html.wz-style-bubble #bjTabs > button { background: var(--bub-white) !important; border-left: 1px solid rgba(0, 0, 0, 0.08) !important; color: #4a4a4a !important; text-shadow: none !important; transition: filter .15s ease; }
+html.wz-style-bubble #bjTabs > button:first-child { border-left: none !important; }
+html.wz-style-bubble #bjTabs > button:hover { filter: brightness(1.04); }
+html.wz-style-bubble #bjTabs > button.tab-button.active { background: var(--bub-gloss), var(--bj-tab) !important; color: var(--bj-tab-text) !important; box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.18) !important; }
+html.wz-style-bubble #bjTabs > #playGameBtn { background: var(--bub-gloss), var(--bj-btn) !important; color: var(--bj-btn-text) !important; box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.18) !important; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important; }
+html.wz-style-bubble #header #settingsHeaderBtn {
+  background: var(--bub-white) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 14px !important;
+  box-shadow: var(--bub-white-shadow) !important; width: 30px; height: 28px; transition: transform .15s ease, box-shadow .15s ease;
+}
+html.wz-style-bubble #header #settingsHeaderBtn:hover { transform: translateY(-1px) scale(1.05); box-shadow: var(--bub-lift-shadow) !important; }
+html.wz-style-bubble .bj-help-btn {
+  width: 26px; height: 26px; border: 1px solid rgba(255, 255, 255, 0.9); color: #fff;
+  background: var(--bub-gloss), radial-gradient(circle at 50% 35%, #8cc8ff 0%, #3d8fe6 60%, #2166c2 100%);
+  font: 800 14px "Segoe UI", sans-serif; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.2), 0 3px 7px rgba(0, 0, 0, 0.2), 0 0 14px rgba(90, 170, 255, 0.55);
+}
+html.wz-style-bubble .bj-help-btn:hover { transform: scale(1.08); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.2), 0 3px 7px rgba(0, 0, 0, 0.2), 0 0 20px rgba(90, 170, 255, 0.75); filter: none; }
+
+/* tool bars and panels */
+html.wz-style-bubble #packet-logging > div:first-child, html.wz-style-bubble #plugins > div:first-child, html.wz-style-bubble #inlinePluginHeader {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bj-panel) 60%, white) 0%, var(--bj-panel) 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.9) !important; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06) !important;
+}
+html.wz-style-bubble #plugins > div:first-child { border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 22px; box-shadow: 0 0 0 1px var(--bj-pline), 0 4px 12px rgba(0, 0, 0, 0.07), 0 0 16px var(--bub-glow) !important; }
+html.wz-style-bubble #packet-logging > div:first-child button, html.wz-style-bubble #plugins > div:first-child button, html.wz-style-bubble #inlinePluginHeader button,
+html.wz-style-bubble #consoleToggleButton, html.wz-style-bubble #clearConsoleButton, html.wz-style-bubble #netSettingsFilterAdd, html.wz-style-bubble #netSettingsFilterClearAll, html.wz-style-bubble .swf-action-btn {
+  background: var(--bub-white) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 14px !important;
+  box-shadow: var(--bub-white-shadow) !important; color: var(--bj-ptext) !important; text-shadow: none !important;
+  transition: transform .15s ease, box-shadow .15s ease !important;
+}
+html.wz-style-bubble #packet-logging > div:first-child button:hover, html.wz-style-bubble #plugins > div:first-child button:hover, html.wz-style-bubble #inlinePluginHeader button:hover,
+html.wz-style-bubble #consoleToggleButton:hover, html.wz-style-bubble #clearConsoleButton:hover, html.wz-style-bubble #netSettingsFilterAdd:hover, html.wz-style-bubble #netSettingsFilterClearAll:hover, html.wz-style-bubble .swf-action-btn:hover {
+  transform: translateY(-1px) scale(1.05); box-shadow: var(--bub-lift-shadow) !important; border-color: rgba(255, 255, 255, 0.95) !important;
+}
+html.wz-style-bubble #filterAllButton, html.wz-style-bubble #filterIncomingButton, html.wz-style-bubble #filterOutgoingButton { border-radius: 99px !important; margin-left: 3px; }
+html.wz-style-bubble #filterAllButton.active, html.wz-style-bubble #filterIncomingButton.active, html.wz-style-bubble #filterOutgoingButton.active {
+  background: var(--bub-gloss), var(--bj-tab) !important; color: var(--bj-tab-text) !important; box-shadow: var(--bub-color-shadow) !important;
+}
+html.wz-style-bubble #packetSearch, html.wz-style-bubble #input, html.wz-style-bubble .modal-input, html.wz-style-bubble select,
+html.wz-style-bubble input[type="number"], html.wz-style-bubble input[type="text"]:not(.wzcp-hex) {
+  border: 1px solid var(--bj-pline) !important; border-radius: 18px !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.07), 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+html.wz-style-bubble #packetSearch:focus, html.wz-style-bubble #input:focus, html.wz-style-bubble .modal-input:focus, html.wz-style-bubble select:focus,
+html.wz-style-bubble input[type="number"]:focus, html.wz-style-bubble input[type="text"]:not(.wzcp-hex):focus {
+  border-color: var(--bj-accent) !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.05), 0 0 0 3px var(--bub-glow), 0 0 14px var(--bub-glow) !important;
+}
+html.wz-style-bubble input[type="color"] { border-radius: 14px !important; border: 2px solid #ffffff !important; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.14), 0 0 10px var(--bub-glow) !important; }
+html.wz-style-bubble .plugin-grid-tile {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bj-panel) 50%, white) 0%, var(--bj-panel) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 22px !important;
+  box-shadow: 0 0 0 1px var(--bj-pline), inset 0 -4px 8px rgba(0, 0, 0, 0.03), 0 4px 10px rgba(0, 0, 0, 0.07); transition: transform .15s ease, box-shadow .15s ease;
+}
+html.wz-style-bubble .plugin-grid-tile:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px var(--bj-pline), 0 8px 18px rgba(0, 0, 0, 0.1), 0 0 20px var(--bub-glow); }
+html.wz-style-bubble .plugin-icon-container {
+  border-radius: 16px !important; border: 1px solid rgba(255, 255, 255, 0.95);
+  background: radial-gradient(circle at 50% 25%, #ffffff 0%, color-mix(in srgb, var(--bj-header) 45%, white) 100%) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 -3px 5px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+html.wz-style-bubble #message-log > div, html.wz-style-bubble #messages > div { border-radius: 16px !important; }
+html.wz-style-bubble footer { border-top: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.05); }
+
+/* pop-up windows (Settings, plugins ...) */
+html.wz-style-bubble .modal-container {
+  border: 2px solid rgba(255, 255, 255, 0.95) !important; border-radius: 30px !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.14), 0 0 34px color-mix(in srgb, var(--bj-header) 55%, transparent), 0 20px 50px rgba(0, 0, 0, 0.32) !important;
+}
+html.wz-style-bubble .modal-header { background: var(--bub-gloss), linear-gradient(180deg, var(--bub1) 0%, var(--bub2) 100%) !important; border-bottom: none !important; box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.05) !important; }
+html.wz-style-bubble .modal-header-title { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 8px rgba(255, 255, 255, 0.7) !important; font-weight: 800 !important; }
+html.wz-style-bubble .modal-tab-bar { background: var(--bj-panel) !important; border-bottom: none !important; padding: 10px 12px 6px !important; gap: 6px; }
+html.wz-style-bubble .modal-tab {
+  border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 99px !important; background: var(--bub-white) !important;
+  color: var(--bj-ptext) !important; margin: 0; padding: 4px 14px !important; box-shadow: var(--bub-white-shadow) !important;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+html.wz-style-bubble .modal-tab:hover { transform: translateY(-1px); }
+html.wz-style-bubble .modal-tab.active {
+  background: var(--bub-gloss), var(--bj-tab) !important; color: var(--bj-tab-text) !important; margin-top: 0; padding-top: 4px !important;
+  border-color: rgba(255, 255, 255, 0.7) !important; box-shadow: var(--bub-color-shadow) !important; transform: none;
+}
+html.wz-style-bubble .modal-tab .tab-underline { display: none; }
+html.wz-style-bubble .modal-setting-row, html.wz-style-bubble .bjt-sec {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bj-panel) 45%, white) 0%, var(--bj-panel) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 22px !important;
+  box-shadow: 0 0 0 1px var(--bj-pline), 0 3px 10px rgba(0, 0, 0, 0.05), inset 0 -3px 6px rgba(0, 0, 0, 0.03) !important;
+}
+html.wz-style-bubble.bj-pdark .modal-setting-row, html.wz-style-bubble.bj-pdark .bjt-sec { background: linear-gradient(180deg, color-mix(in srgb, var(--bj-panel) 88%, white) 0%, var(--bj-panel) 100%) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+html.wz-style-bubble .modal-btn-primary, html.wz-style-bubble .modal-btn-success, html.wz-style-bubble #saveSettingsBtn, html.wz-style-bubble .bjt-btn.on, html.wz-style-bubble .bjt-btn.main {
+  background: var(--bub-gloss), var(--bj-btn) !important; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important; border-radius: 99px !important; color: var(--bj-btn-text) !important;
+  box-shadow: var(--bub-color-shadow) !important;
+}
+html.wz-style-bubble .modal-btn-secondary, html.wz-style-bubble .bjt-btn {
+  background: var(--bub-white) !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 99px !important;
+  box-shadow: var(--bub-white-shadow) !important; color: var(--bj-ptext) !important; text-shadow: none !important;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+html.wz-style-bubble .modal-btn-primary:hover, html.wz-style-bubble .modal-btn-success:hover, html.wz-style-bubble #saveSettingsBtn:hover, html.wz-style-bubble .bjt-btn.on:hover, html.wz-style-bubble .bjt-btn.main:hover {
+  transform: translateY(-1px) scale(1.03); filter: brightness(1.06);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.16), 0 5px 12px rgba(0, 0, 0, 0.16), 0 0 22px var(--bub-glow) !important;
+}
+html.wz-style-bubble .modal-btn-secondary:hover, html.wz-style-bubble .bjt-btn:not(.on):not(.main):hover { transform: translateY(-1px) scale(1.03); box-shadow: var(--bub-lift-shadow) !important; }
+html.wz-style-bubble .modal-btn-primary:active, html.wz-style-bubble .modal-btn-success:active, html.wz-style-bubble #saveSettingsBtn:active, html.wz-style-bubble .modal-btn-secondary:active, html.wz-style-bubble .bjt-btn:active { transform: scale(0.97); }
+html.wz-style-bubble .toggle-switch { background: rgba(0, 0, 0, 0.12) !important; border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2); }
+html.wz-style-bubble .peer:checked ~ .toggle-switch { background: var(--bub-gloss), var(--bj-btn) !important; box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.15), 0 0 12px var(--bub-glow); }
+html.wz-style-bubble .toggle-switch::after { background: radial-gradient(circle at 50% 30%, #ffffff 0%, #f1f1f1 60%, #dcdcdc 100%) !important; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important; }
+html.wz-style-bubble .bjt-range { height: 10px; border: none; border-radius: 99px; background: rgba(0, 0, 0, 0.1); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.7); }
+html.wz-style-bubble .bjt-range::-webkit-slider-thumb, html.wz-style-bubble .bjt-range::-webkit-slider-thumb:hover {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ffffff;
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, var(--bj-accent) 70%);
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15), 0 2px 5px rgba(0, 0, 0, 0.3), 0 0 10px var(--bub-glow);
+}
+html.wz-style-bubble .bjt-icons { border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05); }
+html.wz-style-bubble .bjt-icon { border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.95); background: var(--bub-white); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 5px rgba(0, 0, 0, 0.08); }
+html.wz-style-bubble .bjt-icon:hover { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 0 12px var(--bub-glow); }
+html.wz-style-bubble .bjt-icon.on { border-color: var(--bj-accent); box-shadow: 0 0 0 1px var(--bj-accent), 0 0 14px var(--bub-glow); }
+html.wz-style-bubble #pluginSettingsPopover, html.wz-style-bubble #networkSettingsPopover, html.wz-style-bubble .popover-panel, html.wz-style-bubble .plugin-context-menu,
+html.wz-style-bubble .plugin-icon-picker, html.wz-style-bubble .ui-autocomplete, html.wz-style-bubble .bj-pop {
+  border: 1px solid rgba(255, 255, 255, 0.95) !important; border-radius: 20px !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.14), 0 0 20px var(--bub-glow), 0 10px 26px rgba(0, 0, 0, 0.2) !important;
+}
+html.wz-style-bubble .sj-tooltip.sj-tooltip-default { border-radius: 14px !important; border: 1px solid rgba(255, 255, 255, 0.95) !important; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.14), 0 0 12px var(--bub-glow), 0 3px 8px rgba(0, 0, 0, 0.16) !important; }
+html.wz-style-bubble ::-webkit-scrollbar-track { background: transparent !important; }
+html.wz-style-bubble ::-webkit-scrollbar-thumb {
+  border-radius: 99px !important; border: 3px solid transparent !important; background-clip: padding-box !important;
+  background: linear-gradient(90deg, var(--bub1), var(--bub2)) !important; box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+/* =====================================================================
+   Comic look: a soft 2D cartoon (html.wz-style-comic)
+   Flat colours, soft ink outlines and little solid drop shadows, like a comic.
+   ===================================================================== */
+html.wz-style-comic {
+  --cm-ink: #3b2f2f;
+  --cm-ink-soft: rgba(59, 47, 47, 0.85);
+  --cm-ink-faint: rgba(59, 47, 47, 0.28);
+  --cm-dots: radial-gradient(rgba(59, 47, 47, 0.07) 1px, transparent 1.6px) 0 0 / 7px 7px;
+  --bj-soft1: color-mix(in srgb, var(--bj-header) 55%, white);
+  --bj-soft2: color-mix(in srgb, var(--bj-header) 80%, white);
+}
+html.wz-style-comic.bj-pdark { --cm-ink: #141012; --cm-ink-soft: rgba(0, 0, 0, 0.6); --cm-ink-faint: rgba(255, 255, 255, 0.16); }
+
+/* header strip */
+html.wz-style-comic #header {
+  background: var(--cm-dots), var(--bj-soft1) !important;
+  border-bottom: 2.5px solid #3b2f2f !important;
+  box-shadow: 0 2px 0 rgba(59, 47, 47, 0.18) !important;
+}
+html.wz-style-comic #bjTabs { border: 2px solid #3b2f2f !important; border-radius: 12px !important; box-shadow: 2px 2px 0 #3b2f2f; overflow: hidden; }
+html.wz-style-comic #bjTabs > button { background: #fffdf7 !important; border-left: 2px solid #3b2f2f !important; color: #3b2f2f !important; box-shadow: none !important; text-shadow: none !important; }
+html.wz-style-comic #bjTabs > button:first-child { border-left: none !important; }
+html.wz-style-comic #bjTabs > button:hover { background: var(--bj-soft2) !important; }
+html.wz-style-comic #bjTabs > button.tab-button.active { background: var(--bj-tab) !important; color: var(--bj-tab-text) !important; }
+html.wz-style-comic #bjTabs > #playGameBtn { background: var(--bj-btn) !important; color: var(--bj-btn-text) !important; }
+html.wz-style-comic #header #settingsHeaderBtn {
+  background: #fffdf7 !important; color: #3b2f2f !important; border: 2px solid #3b2f2f !important; border-radius: 10px !important;
+  box-shadow: 2px 2px 0 #3b2f2f !important; width: 30px; height: 28px; transition: transform .1s ease, box-shadow .1s ease;
+}
+html.wz-style-comic #header #settingsHeaderBtn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #3b2f2f !important; }
+html.wz-style-comic .bj-help-btn {
+  width: 26px; height: 26px; border: 2px solid #3b2f2f; background: #9fd3ff; color: #3b2f2f;
+  font: 800 14px "Segoe UI", sans-serif; text-shadow: none; box-shadow: 2px 2px 0 #3b2f2f;
+}
+html.wz-style-comic .bj-help-btn:hover { background: #bfe2ff; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #3b2f2f; filter: none; }
+
+/* tool bars and panels */
+html.wz-style-comic #packet-logging > div:first-child, html.wz-style-comic #plugins > div:first-child, html.wz-style-comic #inlinePluginHeader {
+  background: var(--bj-panel) !important;
+  border-bottom: 2px solid var(--cm-ink-faint) !important; box-shadow: none !important;
+}
+html.wz-style-comic #plugins > div:first-child { border: 2px solid var(--cm-ink) !important; border-radius: 16px; box-shadow: 3px 3px 0 var(--cm-ink-soft) !important; }
+html.wz-style-comic #packet-logging > div:first-child button, html.wz-style-comic #plugins > div:first-child button, html.wz-style-comic #inlinePluginHeader button,
+html.wz-style-comic #consoleToggleButton, html.wz-style-comic #clearConsoleButton, html.wz-style-comic #netSettingsFilterAdd, html.wz-style-comic #netSettingsFilterClearAll, html.wz-style-comic .swf-action-btn {
+  background: var(--bj-pfield, #fff) !important; border: 2px solid var(--cm-ink) !important; border-radius: 10px !important;
+  box-shadow: 2px 2px 0 var(--cm-ink) !important; color: var(--bj-ptext) !important; text-shadow: none !important;
+  transition: transform .1s ease, box-shadow .1s ease !important;
+}
+html.wz-style-comic #packet-logging > div:first-child button:hover, html.wz-style-comic #plugins > div:first-child button:hover, html.wz-style-comic #inlinePluginHeader button:hover,
+html.wz-style-comic #consoleToggleButton:hover, html.wz-style-comic #clearConsoleButton:hover, html.wz-style-comic #netSettingsFilterAdd:hover, html.wz-style-comic #netSettingsFilterClearAll:hover, html.wz-style-comic .swf-action-btn:hover {
+  transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--cm-ink) !important;
+  background: color-mix(in srgb, var(--bj-header) 30%, var(--bj-pfield, #fff)) !important; border-color: var(--cm-ink) !important;
+}
+html.wz-style-comic #packet-logging > div:first-child button:active, html.wz-style-comic #plugins > div:first-child button:active, html.wz-style-comic #inlinePluginHeader button:active,
+html.wz-style-comic #consoleToggleButton:active, html.wz-style-comic #clearConsoleButton:active, html.wz-style-comic .swf-action-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--cm-ink) !important; }
+html.wz-style-comic #filterAllButton, html.wz-style-comic #filterIncomingButton, html.wz-style-comic #filterOutgoingButton { border-radius: 10px !important; margin-left: 3px; }
+html.wz-style-comic #filterAllButton.active, html.wz-style-comic #filterIncomingButton.active, html.wz-style-comic #filterOutgoingButton.active {
+  background: var(--bj-tab) !important; color: var(--bj-tab-text) !important;
+}
+html.wz-style-comic #packetSearch, html.wz-style-comic #input, html.wz-style-comic .modal-input, html.wz-style-comic select,
+html.wz-style-comic input[type="number"], html.wz-style-comic input[type="text"]:not(.wzcp-hex) {
+  border: 2px solid var(--cm-ink) !important; border-radius: 10px !important; box-shadow: none !important;
+}
+html.wz-style-comic #packetSearch:focus, html.wz-style-comic #input:focus, html.wz-style-comic .modal-input:focus, html.wz-style-comic select:focus,
+html.wz-style-comic input[type="number"]:focus, html.wz-style-comic input[type="text"]:not(.wzcp-hex):focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bj-accent) 30%, transparent) !important; }
+html.wz-style-comic input[type="color"] { border-radius: 10px !important; border: 2px solid var(--cm-ink) !important; box-shadow: 2px 2px 0 var(--cm-ink) !important; }
+html.wz-style-comic .plugin-grid-tile {
+  background: var(--bj-panel) !important; border: 2px solid var(--cm-ink) !important; border-radius: 16px !important;
+  box-shadow: 3px 3px 0 var(--cm-ink-soft); transition: transform .1s ease, box-shadow .1s ease;
+}
+html.wz-style-comic .plugin-grid-tile:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--cm-ink-soft); }
+html.wz-style-comic .plugin-icon-container { border-radius: 12px !important; background: color-mix(in srgb, var(--bj-header) 35%, white) !important; border: 2px solid var(--cm-ink); box-shadow: none; }
+html.wz-style-comic #message-log > div, html.wz-style-comic #messages > div { border-radius: 12px !important; }
+html.wz-style-comic footer { border-top: 2px solid var(--cm-ink-faint); box-shadow: none; }
+
+/* pop-up windows (Settings, plugins ...) */
+html.wz-style-comic .modal-container {
+  border: 2.5px solid #3b2f2f !important; border-radius: 22px !important;
+  box-shadow: 6px 6px 0 rgba(59, 47, 47, 0.85) !important;
+}
+html.wz-style-comic .modal-header { background: var(--cm-dots), var(--bj-soft1) !important; border-bottom: 2.5px solid #3b2f2f !important; box-shadow: none !important; }
+html.wz-style-comic .modal-header-title { text-shadow: none !important; font-weight: 800 !important; color: #3b2f2f !important; }
+html.wz-style-comic .modal-header .wzcaps { color: #3b2f2f; }
+html.wz-style-comic .modal-tab-bar { background: var(--bj-panel) !important; border-bottom: none !important; padding: 10px 12px 6px !important; gap: 6px; }
+html.wz-style-comic .modal-tab {
+  border: 2px solid var(--cm-ink) !important; border-radius: 12px !important; background: var(--bj-pfield, #fff) !important;
+  color: var(--bj-ptext) !important; margin: 0; padding: 4px 14px !important; box-shadow: none !important;
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+html.wz-style-comic .modal-tab:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--cm-ink) !important; }
+html.wz-style-comic .modal-tab.active {
+  background: var(--bj-tab) !important; color: var(--bj-tab-text) !important; margin-top: 0; padding-top: 4px !important;
+  border-color: var(--cm-ink) !important; box-shadow: 2px 2px 0 var(--cm-ink) !important; transform: none;
+}
+html.wz-style-comic .modal-tab .tab-underline { display: none; }
+html.wz-style-comic .modal-setting-row, html.wz-style-comic .bjt-sec {
+  background: color-mix(in srgb, var(--bj-panel) 70%, white) !important; border: 2px solid var(--cm-ink-faint) !important; border-radius: 16px !important;
+  box-shadow: none !important;
+}
+html.wz-style-comic.bj-pdark .modal-setting-row, html.wz-style-comic.bj-pdark .bjt-sec { background: color-mix(in srgb, var(--bj-panel) 92%, white) !important; }
+html.wz-style-comic .modal-btn-primary, html.wz-style-comic .modal-btn-success, html.wz-style-comic #saveSettingsBtn, html.wz-style-comic .bjt-btn.on, html.wz-style-comic .bjt-btn.main {
+  background: var(--bj-btn) !important; text-shadow: none !important;
+  border: 2px solid var(--cm-ink) !important; border-radius: 10px !important; color: var(--bj-btn-text) !important;
+  box-shadow: 2px 2px 0 var(--cm-ink) !important;
+}
+html.wz-style-comic .modal-btn-secondary, html.wz-style-comic .bjt-btn {
+  background: var(--bj-pfield, #fff) !important; border: 2px solid var(--cm-ink) !important; border-radius: 10px !important;
+  box-shadow: 2px 2px 0 var(--cm-ink) !important; color: var(--bj-ptext) !important; text-shadow: none !important;
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+html.wz-style-comic .modal-btn-primary:hover, html.wz-style-comic .modal-btn-success:hover, html.wz-style-comic #saveSettingsBtn:hover, html.wz-style-comic .modal-btn-secondary:hover, html.wz-style-comic .bjt-btn:hover {
+  transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--cm-ink) !important; filter: none;
+}
+html.wz-style-comic .modal-btn-secondary:hover, html.wz-style-comic .bjt-btn:not(.on):not(.main):hover { background: color-mix(in srgb, var(--bj-header) 30%, var(--bj-pfield, #fff)) !important; }
+html.wz-style-comic .modal-btn-primary:active, html.wz-style-comic .modal-btn-success:active, html.wz-style-comic #saveSettingsBtn:active, html.wz-style-comic .modal-btn-secondary:active, html.wz-style-comic .bjt-btn:active {
+  transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--cm-ink) !important;
+}
+html.wz-style-comic .toggle-switch { background: var(--bj-pfield, #fff) !important; border: 2px solid var(--cm-ink); box-shadow: none; }
+html.wz-style-comic .peer:checked ~ .toggle-switch { background: var(--bj-btn) !important; }
+html.wz-style-comic .toggle-switch::after { background: #ffffff !important; border: 2px solid var(--cm-ink) !important; box-sizing: border-box; box-shadow: none !important; }
+html.wz-style-comic .bjt-range { height: 10px; border: 2px solid var(--cm-ink); border-radius: 99px; background: var(--bj-pfield, #fff); box-shadow: none; }
+html.wz-style-comic .bjt-range::-webkit-slider-thumb, html.wz-style-comic .bjt-range::-webkit-slider-thumb:hover {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--cm-ink);
+  background: var(--bj-accent); box-shadow: 2px 2px 0 var(--cm-ink);
+}
+html.wz-style-comic .bjt-icons { border-radius: 14px; border: 2px solid var(--cm-ink-faint); }
+html.wz-style-comic .bjt-icon { border-radius: 10px; border: 2px solid var(--cm-ink-faint); }
+html.wz-style-comic .bjt-icon:hover { border-color: var(--cm-ink); box-shadow: 2px 2px 0 var(--cm-ink); }
+html.wz-style-comic .bjt-icon.on { border-color: var(--cm-ink); box-shadow: 2px 2px 0 var(--cm-ink); }
+html.wz-style-comic #pluginSettingsPopover, html.wz-style-comic #networkSettingsPopover, html.wz-style-comic .popover-panel, html.wz-style-comic .plugin-context-menu,
+html.wz-style-comic .plugin-icon-picker, html.wz-style-comic .ui-autocomplete, html.wz-style-comic .bj-pop {
+  border: 2px solid #3b2f2f !important; border-radius: 14px !important; box-shadow: 4px 4px 0 rgba(59, 47, 47, 0.85) !important;
+}
+html.wz-style-comic .sj-tooltip.sj-tooltip-default { border-radius: 10px !important; border: 2px solid #3b2f2f !important; box-shadow: 2px 2px 0 rgba(59, 47, 47, 0.85) !important; }
+html.wz-style-comic ::-webkit-scrollbar-track { background: transparent !important; }
+html.wz-style-comic ::-webkit-scrollbar-thumb {
+  border-radius: 99px !important; border: 2px solid var(--cm-ink) !important; background: var(--bj-soft2) !important;
+  background-clip: border-box !important; box-shadow: none;
+}
+.bjt-ttl { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.bjt-ttl small { font-size: 10.5px; font-weight: normal; letter-spacing: 0; text-transform: none; color: var(--bj-pmuted); line-height: 1.3; }
+
+/* ---- sections open as a pop-up on top of Settings (looks like the other windows) ---- */
+.bjt-dim {
+  position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center;
+  padding: 14px; border-radius: inherit; background: rgba(0, 0, 0, 0.1); animation: bjtFade .14s ease-out;
+}
+@keyframes bjtFade { from { opacity: 0; } to { opacity: 1; } }
+.bjt-pop.modal-container { width: 100%; max-width: 400px; max-height: 100%; animation: none; z-index: auto; margin: 0; }
+.bjt-pop .modal-header { padding: 6px 8px 6px 14px !important; }
+.bjt-pop .modal-header-title { font-size: 13px !important; margin: 0; }
+.bjt-pop-body { padding: 10px 8px 4px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.bjt-pop-body > .bjt-body { display: block; padding: 0 6px 6px; }
+.bjt-pop-foot { flex-shrink: 0; padding: 8px 14px 12px; display: flex; justify-content: flex-end; }
+.bjt-pop .modal-close-btn.wzcap { margin: -6px -8px -6px auto; }
+
+/* ---- the lock that keeps the launcher and the game on the same colours ---- */
+.bjt-sharelock { width: 34px; height: 34px; }
+.bjt-sharelock svg { width: 17px; height: 17px; }
+.bjt-sharelock.is-auto { opacity: .6; background: var(--bj-face); border-color: var(--bj-face-line); color: var(--bj-face-text); text-shadow: none; }
+.bjt-sharelock.is-auto .bjt-open { display: block; }
+.bjt-sharelock.is-auto .bjt-closed { display: none; }
+.bjt-share { gap: 12px; }
+.bjt-share.is-on { border-color: var(--bj-accent) !important; }
+
+/* ---- fonts ---- */
+.bjt-fontprev { margin: 4px 0 10px; padding: 10px 12px; border: 1px solid var(--bj-pline); border-radius: 8px; background: color-mix(in srgb, var(--bj-panel) 70%, white); font-size: 15px; line-height: 1.4; }
+html.wz-style-bubble { --bj-font: "Nunito", "Segoe UI", Tahoma, sans-serif; }
+html.wz-style-comic { --bj-font: "Comic Neue", "Comic Sans MS", "Segoe UI", sans-serif; }
+
+/* boxes are closed on every side (plugin tiles used to have a thick left edge only) */
+.plugin-grid-tile {
+  border-style: solid !important; border-width: 1px !important;
+  border-top-color: var(--bj-pline) !important; border-right-color: var(--bj-pline) !important; border-bottom-color: var(--bj-pline) !important;
+}
+
+/* =====================================================================
+   Crystal look: see-through glass with a cool glow (html.wz-style-crystal)
+   It wears the Bubble look too, so everything Bubble has still applies;
+   these rules make the windows and cards see-through.
+   ===================================================================== */
+html.wz-style-crystal {
+  --cr-glow: color-mix(in srgb, var(--bj-accent) 45%, #37e3ff);
+  --cr-tint: color-mix(in srgb, var(--bj-header) 50%, #9beeff);
+  --cr-glass: linear-gradient(155deg, rgba(255, 255, 255, 0.66) 0%, rgba(255, 255, 255, 0.28) 46%, rgba(255, 255, 255, 0.1) 100%);
+  --cr-edge: rgba(255, 255, 255, 0.85);
+  --bub-glow: color-mix(in srgb, var(--cr-glow) 50%, transparent);
+  --bub-white: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0.28) 51%, rgba(255, 255, 255, 0.6) 100%);
+  --bub-white-shadow: 0 0 0 1px rgba(255, 255, 255, 0.75), inset 0 1px 0 #fff, inset 0 -6px 10px color-mix(in srgb, var(--cr-glow) 22%, transparent), 0 4px 10px rgba(0, 50, 100, 0.16);
+}
+html.wz-style-crystal.bj-pdark {
+  --cr-glass: linear-gradient(155deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.07) 46%, rgba(255, 255, 255, 0.02) 100%);
+  --cr-edge: rgba(255, 255, 255, 0.35);
+}
+html.wz-style-crystal body {
+  background-image:
+    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--cr-glow) 30%, transparent), transparent 46%),
+    radial-gradient(circle at 88% 86%, color-mix(in srgb, var(--bj-header) 50%, transparent), transparent 52%) !important;
+  background-attachment: fixed;
+}
+html.wz-style-crystal #header {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.06) 51%, rgba(255, 255, 255, 0.3) 100%), color-mix(in srgb, var(--cr-tint) 62%, transparent) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.6); backdrop-filter: blur(16px) saturate(1.6);
+  border-bottom: 1px solid var(--cr-edge) !important; box-shadow: 0 4px 22px color-mix(in srgb, var(--cr-glow) 30%, transparent), inset 0 1px 0 #fff !important;
+}
+html.wz-style-crystal .modal-backdrop { background: rgba(10, 35, 70, 0.32) !important; -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); }
+html.wz-style-crystal .modal-container {
+  background: var(--cr-glass), color-mix(in srgb, var(--bj-panel) 52%, transparent) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.7); backdrop-filter: blur(24px) saturate(1.7);
+  border: 1px solid var(--cr-edge) !important; border-radius: 24px !important;
+  box-shadow: 0 0 0 1px rgba(0, 70, 140, 0.22), 0 0 34px var(--bub-glow), 0 22px 54px rgba(0, 40, 90, 0.4), inset 0 1px 0 #fff, inset 0 0 26px rgba(255, 255, 255, 0.3) !important;
+}
+html.wz-style-crystal .modal-header {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.06) 51%, rgba(255, 255, 255, 0.3) 100%), color-mix(in srgb, var(--cr-tint) 55%, transparent) !important;
+  border-bottom: 1px solid var(--cr-edge) !important;
+}
+html.wz-style-crystal .modal-tab-bar { background: transparent !important; }
+html.wz-style-crystal .modal-tab { border-color: var(--cr-edge) !important; }
+html.wz-style-crystal .modal-tab.active { background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.04) 51%), color-mix(in srgb, var(--bj-tab) 82%, transparent) !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 0 16px var(--bub-glow) !important; }
+html.wz-style-crystal .modal-setting-row, html.wz-style-crystal .bjt-sec,
+html.wz-style-crystal .plugin-grid-tile, html.wz-style-crystal #packet-logging > div:first-child, html.wz-style-crystal #plugins > div:first-child, html.wz-style-crystal #inlinePluginHeader {
+  background: var(--cr-glass) !important; -webkit-backdrop-filter: blur(12px) saturate(1.4); backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid var(--cr-edge) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cr-glow) 22%, transparent), 0 4px 14px rgba(0, 50, 100, 0.12), inset 0 1px 0 #fff, inset 0 -10px 16px rgba(255, 255, 255, 0.1) !important;
+}
+html.wz-style-crystal .plugin-grid-tile:hover { box-shadow: 0 0 0 1px var(--cr-glow), 0 8px 22px rgba(0, 50, 100, 0.2), 0 0 24px var(--bub-glow), inset 0 1px 0 #fff !important; }
+html.wz-style-crystal .bjt-dim { background: rgba(10, 35, 70, 0.3); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+html.wz-style-crystal #packetSearch, html.wz-style-crystal #input, html.wz-style-crystal .modal-input, html.wz-style-crystal select,
+html.wz-style-crystal input[type="number"], html.wz-style-crystal input[type="text"]:not(.wzcp-hex) {
+  background: rgba(255, 255, 255, 0.5) !important; border-color: var(--cr-edge) !important;
+  box-shadow: inset 0 2px 5px rgba(0, 60, 120, 0.12), 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+html.wz-style-crystal .modal-btn-primary, html.wz-style-crystal .modal-btn-success, html.wz-style-crystal #saveSettingsBtn, html.wz-style-crystal .bjt-btn.main {
+  background: var(--bub-gloss), color-mix(in srgb, var(--bj-btn) 78%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 0 18px var(--bub-glow), 0 4px 10px rgba(0, 50, 100, 0.2) !important;
+}
+html.wz-style-crystal footer { background: var(--cr-glass); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+
+/* =====================================================================
+   Mac look: clean, quiet and light (html.wz-style-mac). Wears Modern too.
+   ===================================================================== */
+html.wz-style-mac {
+  --bj-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", sans-serif;
+  --mac-line: color-mix(in srgb, var(--bj-ptext) 16%, transparent);
+  --mac-btn: linear-gradient(180deg, #ffffff 0%, #f1f1f1 100%);
+}
+html.wz-style-mac.bj-pdark { --mac-btn: linear-gradient(180deg, #5a5a5f 0%, #4b4b50 100%); }
+html.wz-style-mac #header {
+  background: color-mix(in srgb, var(--bj-panel) 80%, transparent) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8);
+  border-bottom: 1px solid var(--mac-line) !important;
+}
+html.wz-style-mac .modal-backdrop { background: rgba(0, 0, 0, 0.22) !important; }
+html.wz-style-mac .modal-container {
+  background: color-mix(in srgb, var(--bj-panel) 90%, transparent) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(1.8); backdrop-filter: blur(30px) saturate(1.8);
+  border: 1px solid var(--mac-line) !important; border-radius: 12px !important;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.3), 0 24px 60px rgba(0, 0, 0, 0.32) !important;
+}
+html.wz-style-mac .modal-header { background: color-mix(in srgb, var(--bj-panel) 70%, transparent) !important; border-bottom: 1px solid var(--mac-line) !important; }
+html.wz-style-mac .modal-header-title { font-weight: 600 !important; font-size: 13px !important; text-align: center; flex: 1; }
+html.wz-style-mac .modal-tab-bar { display: flex; justify-content: center; }
+html.wz-style-mac .modal-tab-bar > .modal-tab { flex: 1; text-align: center; }
+html.wz-style-mac .modal-tab { border: 1px solid var(--mac-line) !important; border-radius: 6px !important; background: var(--mac-btn) !important; color: var(--bj-ptext) !important; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06) !important; }
+html.wz-style-mac .modal-tab.active { background: var(--bj-accent) !important; color: var(--bj-accent-text, #fff) !important; border-color: transparent !important; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important; }
+html.wz-style-mac .modal-setting-row, html.wz-style-mac .bjt-sec {
+  background: color-mix(in srgb, var(--bj-ptext) 4%, var(--bj-panel)) !important; border: 1px solid var(--mac-line) !important; border-radius: 10px !important; box-shadow: none !important;
+}
+html.wz-style-mac .plugin-grid-tile { border: 1px solid var(--mac-line) !important; border-radius: 10px !important; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important; }
+html.wz-style-mac .bjt-btn, html.wz-style-mac .modal-btn-secondary { background: var(--mac-btn) !important; border: 1px solid var(--mac-line) !important; border-radius: 6px !important; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08) !important; color: var(--bj-ptext) !important; text-shadow: none !important; }
+html.wz-style-mac .bjt-btn.main, html.wz-style-mac .modal-btn-primary, html.wz-style-mac .modal-btn-success, html.wz-style-mac #saveSettingsBtn {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bj-btn) 88%, white) 0%, var(--bj-btn) 100%) !important; color: var(--bj-btn-text) !important; border-color: transparent !important; border-radius: 6px !important;
+}
+html.wz-style-mac select, html.wz-style-mac .modal-input, html.wz-style-mac input[type="text"]:not(.wzcp-hex), html.wz-style-mac input[type="number"], html.wz-style-mac #packetSearch, html.wz-style-mac #input { border-radius: 6px !important; }
+html.wz-style-mac select:focus, html.wz-style-mac .modal-input:focus, html.wz-style-mac input[type="text"]:not(.wzcp-hex):focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--bj-accent) 35%, transparent) !important; }
+
+html.wz-style-mac .modal-header .modal-close-btn.wzcap { order: -1; margin: 0 10px 0 0 !important; }
+html.wz-style-mac .modal-header-title { padding-right: 34px; }
+
+/* ---------- the main Settings button stands out a little; the little cogs under it are smaller ---------- */
+html[class] #header #settingsHeaderBtn {
+  display: inline-flex !important; align-items: center; gap: 6px;
+  padding: 3px 11px !important; margin: 0 4px 0 2px; min-height: 0; width: auto !important; height: auto !important;
+  background: var(--bj-btn) !important; color: var(--bj-btn-text) !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important; border-radius: 999px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  font: 600 13px var(--bj-font); text-shadow: none;
+}
+html[class] #header #settingsHeaderBtn i { font-size: 13px; color: inherit !important; }
+html[class] #header #settingsHeaderBtn::after { content: "Settings"; }
+html[class] #header #settingsHeaderBtn:hover { filter: brightness(1.08); }
+html[class] #header #settingsHeaderBtn:active { filter: brightness(0.95); }
+html[class] #header #settingsHeaderBtn:focus-visible { outline: 2px solid var(--bj-btn); outline-offset: 2px; }
+#pluginSettingsBtn, #networkSettingsBtn { padding: 3px !important; opacity: 0.6; }
+#pluginSettingsBtn i, #networkSettingsBtn i { font-size: 11px !important; }
+#pluginSettingsBtn:hover, #networkSettingsBtn:hover { opacity: 1; }
+
+/* ---------- wider Settings, with the colour settings side by side ---------- */
+.bjt-pop[data-sec="colours"].modal-container, .bjt-pop[data-sec="style"].modal-container, .bjt-pop[data-sec="more"].modal-container { max-width: 480px; }
+.bjt-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 22px; align-items: start; }
+.bjt-col { min-width: 0; }
+.bjt-sub small { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.bjt-sub { border-bottom: 1px solid var(--bj-pline); padding-bottom: 3px; }
+.bjt-col .bjt-row { margin-bottom: 6px; }
+@media (max-width: 640px) { .bjt-cols { grid-template-columns: 1fr; } }
+.bjt-col .bjt-row > select, .bjt-col .bjt-row > input[type="text"] { min-width: 0; width: 0; flex: 1 1 0; }
+.bjt-col .bjt-row > .bjt-label { white-space: nowrap; }
+.bjt-col .bjt-hint { overflow-wrap: anywhere; }
+.bjt-icons-list:empty{display:none}.bjt-icons-list{min-height:0}
+.bjt-icons-list:empty{display:none}.bjt-icons-list{min-height:0}
+
+/* each group inside a pop-up is its own little card */
+.bjt-card { border: 1px solid var(--bj-pline); border-radius: 6px; padding: 8px 10px 10px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.35); }
+.bjt-card > .bjt-sub:first-child, .bjt-card > #bjt-custom > .bjt-sub:first-child { margin-top: 0; }
+.bjt-card:last-child { margin-bottom: 0; }
+.bjt-cols, .bjt-col { display: block; }
+
+.bjt-pop.modal-container { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25) !important; }
+
+/* =====================================================================
+   Mod Menu look: pill tabs, roomy cards and round buttons (html.wz-style-cards).
+   It wears Modern too, and uses the theme colours, so it stays customisable.
+   ===================================================================== */
+html.wz-style-cards {
+  --cards-line: color-mix(in srgb, var(--bj-accent) 30%, var(--bj-line));
+  --cards-card: color-mix(in srgb, var(--bj-ptext) 4%, var(--bj-panel));
+}
+html.wz-style-cards #header { border-bottom: 2px solid var(--cards-line) !important; }
+html.wz-style-cards #bjTabs { background: transparent !important; padding: 0; gap: 8px; border-radius: 0 !important; }
+html.wz-style-cards #bjTabs > button {
+  border: 1px solid var(--cards-line) !important; border-radius: 999px !important; padding: 6px 14px !important;
+  background: var(--cards-card) !important; color: var(--bj-ptext) !important; box-shadow: none !important; font-weight: 700;
+}
+html.wz-style-cards #bjTabs > button:hover { background: color-mix(in srgb, var(--bj-btn) 18%, var(--cards-card)) !important; }
+html.wz-style-cards #bjTabs > button.tab-button.active,
+html.wz-style-cards #bjTabs > #playGameBtn { background: var(--bj-btn) !important; color: var(--bj-btn-text) !important; border-color: transparent !important; }
+html.wz-style-cards #header #settingsHeaderBtn { border-radius: 999px !important; }
+html.wz-style-cards .bj-help-btn { border-radius: 50%; }
+html.wz-style-cards .modal-backdrop { background: rgba(0, 0, 0, 0.25) !important; }
+html.wz-style-cards .modal-container {
+  border: 2px solid var(--cards-line) !important; border-radius: 18px !important; overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.3) !important;
+}
+html.wz-style-cards .modal-header { background: transparent !important; border-bottom: 2px solid var(--cards-line) !important; }
+html.wz-style-cards .modal-header-title { font-weight: 800 !important; font-size: 16px !important; }
+html.wz-style-cards .modal-tab-bar { gap: 8px; padding: 8px 12px; border-bottom: none !important; }
+html.wz-style-cards .modal-tab { border: 1px solid var(--cards-line) !important; border-radius: 999px !important; background: var(--cards-card) !important; color: var(--bj-ptext) !important; box-shadow: none !important; font-weight: 700; }
+html.wz-style-cards .modal-tab.active { background: var(--bj-btn) !important; color: var(--bj-btn-text) !important; border-color: transparent !important; }
+html.wz-style-cards .modal-setting-row, html.wz-style-cards .bjt-sec, html.wz-style-cards .bjt-card, html.wz-style-cards .plugin-grid-tile {
+  background: var(--cards-card) !important; border: 1px solid var(--cards-line) !important; border-radius: 16px !important; box-shadow: none !important;
+}
+html.wz-style-cards .bjt-btn, html.wz-style-cards .modal-btn-secondary, html.wz-style-cards .modal-btn-primary, html.wz-style-cards .modal-btn-success, html.wz-style-cards .modal-btn-danger, html.wz-style-cards #saveSettingsBtn {
+  border-radius: 999px !important; font-weight: 800; box-shadow: none !important; text-shadow: none !important;
+}
+html.wz-style-cards .bjt-btn.main, html.wz-style-cards .modal-btn-primary, html.wz-style-cards .modal-btn-success, html.wz-style-cards #saveSettingsBtn { background: var(--bj-btn) !important; color: var(--bj-btn-text) !important; border-color: transparent !important; }
+html.wz-style-cards select, html.wz-style-cards .modal-input, html.wz-style-cards input[type="text"]:not(.wzcp-hex), html.wz-style-cards input[type="number"], html.wz-style-cards #packetSearch, html.wz-style-cards #input { border-radius: 12px !important; }
+html.wz-style-cards select:focus, html.wz-style-cards .modal-input:focus, html.wz-style-cards input[type="text"]:not(.wzcp-hex):focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--bj-accent) 35%, transparent) !important; }
+html.wz-style-cards .bjt-pop { border: 2px solid var(--cards-line) !important; border-radius: 18px !important; }
+
+/* ---- Banana Jam motion: a little bounce and smooth changes everywhere ---- */
+@keyframes bj-pop { 0% { opacity: 0; transform: scale(.88) translateY(10px); } 60% { opacity: 1; transform: scale(1.025) translateY(-2px); } 100% { opacity: 1; transform: none; } }
+@keyframes bj-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bj-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.modal-container { animation: bj-pop .34s cubic-bezier(.34, 1.4, .64, 1) both; }
+.modal-backdrop { animation: bj-fade .25s ease both; }
+.bj-pop { animation: bj-pop .26s cubic-bezier(.34, 1.4, .64, 1) both; }
+button, .modal-btn, [role="tab"], select, input[type="text"], input[type="number"] {
+  transition: transform .16s cubic-bezier(.34, 1.56, .64, 1), background .18s ease, box-shadow .18s ease, border-color .18s ease, filter .18s ease, opacity .18s ease;
+}
+button:not(:disabled):hover, .modal-btn:hover { transform: translateY(-1px) scale(1.03); }
+button:not(:disabled):active, .modal-btn:active { transform: scale(.96); transition-duration: .06s; }
+input[type="checkbox"], input[type="radio"] { transition: transform .18s cubic-bezier(.34, 1.56, .64, 1); }
+input[type="checkbox"]:active { transform: scale(.85); }
+/* help button in the Mac and Crystal looks */
+html.wz-style-mac .bj-help-btn { background: var(--bj-mhover); border: none; box-shadow: none; color: var(--bj-accent); border-radius: 50%; font: 600 13px -apple-system, "Segoe UI", sans-serif; text-shadow: none; width: 26px; height: 26px; }
+html.wz-style-mac .bj-help-btn:hover { filter: none; background: rgba(10, 132, 255, 0.16); box-shadow: none; }
+html.wz-style-crystal .bj-help-btn {
+  width: 26px; height: 26px; border: 1px solid rgba(255, 255, 255, 0.85); color: #1c5aa0; text-shadow: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(150, 205, 255, 0.4) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 12px rgba(90, 170, 255, 0.55);
+}
+html.wz-style-crystal .bj-help-btn:hover { filter: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 18px rgba(90, 170, 255, 0.8); }
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-container, .modal-backdrop, .bj-pop { animation: none !important; }
+  button, .modal-btn { transition: none !important; }
+  button:hover, button:active { transform: none !important; }
+}

@@ -9,7 +9,7 @@
         'pineapple.png': { primary: '#FFEC8B', secondary: 'rgba(255, 236, 139, 0.3)', highlight: 'rgba(255, 250, 205, 0.3)', shadow: 'rgba(255, 236, 139, 0.1)', gradientStart: 'rgba(255, 250, 205, 0.3)', gradientEnd: 'rgba(255, 255, 224, 0.6)', hoverBorder: 'rgba(255, 236, 139, 0.5)', radial1: 'rgba(255, 240, 160, 0.05)', radial2: 'rgba(255, 245, 180, 0.07)', settingsHover: 'rgba(255, 236, 139, 0.05)', settingsBorder: 'rgba(255, 236, 139, 0.2)' },
         'pumpkin.png': { primary: '#FF8C00', secondary: 'rgba(255, 140, 0, 0.3)', highlight: 'rgba(255, 218, 185, 0.3)', shadow: 'rgba(255, 140, 0, 0.1)', gradientStart: 'rgba(255, 218, 185, 0.3)', gradientEnd: 'rgba(255, 245, 230, 0.6)', hoverBorder: 'rgba(255, 140, 0, 0.5)', radial1: 'rgba(255, 180, 100, 0.05)', radial2: 'rgba(255, 200, 120, 0.07)', settingsHover: 'rgba(255, 140, 0, 0.05)', settingsBorder: 'rgba(255, 140, 0, 0.2)' },
       };
-  const DEFAULT_FRUIT = 'strawberry.png';
+  const DEFAULT_FRUIT = 'banana.png';
 
   function cloneThemes() {
     const clone = {};

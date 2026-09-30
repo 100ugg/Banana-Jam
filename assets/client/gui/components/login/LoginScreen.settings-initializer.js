@@ -42,12 +42,24 @@
           }
         });
 
-      if (this.loginScreen.modMenuBtnToggle) {
-        this.loginScreen.modMenuBtnToggle.checked = localStorage.getItem('showModMenuButton') === 'true';
+      window.ipc.invoke('get-setting', 'fastMode')
+        .then(fastMode => {
+          if (this.loginScreen.fastModeToggle) this.loginScreen.fastModeToggle.checked = fastMode === true;
+        })
+        .catch(() => {
+          if (this.loginScreen.fastModeToggle) this.loginScreen.fastModeToggle.checked = false;
+        });
+
+      if (this.loginScreen.gameUiToggle) {
+        const on = localStorage.getItem('wzGameUi') !== 'false';
+        this.loginScreen.gameUiToggle.checked = on;
+        this.loginScreen.classList.toggle('wz-ui-off', !on);
       }
 
       window.ipc.invoke('get-setting', 'darkMode')
         .then(darkMode => {
+          // the Light / Dark switch is shared with the launcher and the Mod Menu, so it decides
+          if (window.WzMode) darkMode = window.WzMode.get() === 'dark';
           if (this.loginScreen.darkModeToggle) {
             this.loginScreen.darkModeToggle.checked = darkMode === true;
             this.uiManager.toggleDarkMode(darkMode === true);
@@ -204,11 +216,19 @@
     }
 
     async _initializeAllSettings() {
+      // Banana Jam: ask for every setting at once (one round trip instead of three in a row)
+      const _cache = {};
+      const get = (k) => {
+        if (!_cache[k]) _cache[k] = window.ipc.invoke('get-setting', k).catch(() => undefined);
+        return _cache[k];
+      };
+      ['darkMode','uuidSpoofingEnabled','debug.locale','backgroundProcessing','ui.showImportAccounts','ui.showWheelAutomation','fruitTheme','uuid_spoofer_enabled','ui.hideDevToolsBadge','ui.customThemeColor','ui.customThemeEnabled','ui.customThemeName','ui.customThemeFruit'].forEach(get);
       try {
         let darkMode = false;
         try {
-          darkMode = await window.ipc.invoke('get-setting', 'darkMode');
+          darkMode = await get('darkMode');
           darkMode = darkMode === true;
+          if (window.WzMode) darkMode = window.WzMode.get() === 'dark';
         } catch (err) {
           darkMode = false;
         }
@@ -238,14 +258,14 @@
           uuidSpooferEnabledAlt,
           hideDevToolsBadge
         ] = await Promise.all([
-          window.ipc.invoke('get-setting', 'uuidSpoofingEnabled').catch(() => false),
-          window.ipc.invoke('get-setting', 'debug.locale').catch(() => ''),
-          window.ipc.invoke('get-setting', 'backgroundProcessing').catch(() => true),
-          window.ipc.invoke('get-setting', 'ui.showImportAccounts').catch(() => false),
-          window.ipc.invoke('get-setting', 'ui.showWheelAutomation').catch(() => false),
-          window.ipc.invoke('get-setting', 'fruitTheme').catch(() => null),
-          window.ipc.invoke('get-setting', 'uuid_spoofer_enabled').catch(() => false),
-          window.ipc.invoke('get-setting', 'ui.hideDevToolsBadge').catch(() => false)
+          get('uuidSpoofingEnabled'),
+          get('debug.locale'),
+          get('backgroundProcessing'),
+          get('ui.showImportAccounts'),
+          get('ui.showWheelAutomation'),
+          get('fruitTheme'),
+          get('uuid_spoofer_enabled'),
+          get('ui.hideDevToolsBadge')
         ]);
 
         const effectiveUuidSpoofing = uuidSpoofingEnabled || uuidSpooferEnabledAlt;
@@ -279,10 +299,10 @@
         }
 
         const [customThemeColor, customThemeEnabled, customThemeName, customThemeFruit] = await Promise.all([
-          window.ipc.invoke('get-setting', 'ui.customThemeColor').catch(() => null),
-          window.ipc.invoke('get-setting', 'ui.customThemeEnabled').catch(() => false),
-          window.ipc.invoke('get-setting', 'ui.customThemeName').catch(() => null),
-          window.ipc.invoke('get-setting', 'ui.customThemeFruit').catch(() => null)
+          get('ui.customThemeColor'),
+          get('ui.customThemeEnabled'),
+          get('ui.customThemeName'),
+          get('ui.customThemeFruit')
         ]);
 
         const customThemeEnabledToggle = this.loginScreen.shadowRoot.getElementById('custom-theme-enabled-toggle');
@@ -349,7 +369,13 @@
       const customThemeColorInput = this.loginScreen.shadowRoot.getElementById('custom-theme-color-input');
       const customThemeNameInput = this.loginScreen.shadowRoot.getElementById('custom-theme-name-input');
       const customThemeFruitSelect = this.loginScreen.shadowRoot.getElementById('custom-theme-fruit-select');
-      const customThemeColorContainer = this.loginScreen.shadowRoot.getElementById('custom-theme-color-container');
+      const _ccs = ['custom-theme-color-container', 'custom-theme-color-container-2']
+        .map((id) => this.loginScreen.shadowRoot.getElementById(id)).filter(Boolean);
+      // the custom settings are split into two boxes; both dim together
+      const customThemeColorContainer = _ccs.length ? { style: {
+        set opacity(v) { _ccs.forEach((e) => { e.style.opacity = v; }); },
+        set pointerEvents(v) { _ccs.forEach((e) => { e.style.pointerEvents = v; }); }
+      } } : null;
       const customThemeColorPreview = this.loginScreen.shadowRoot.getElementById('custom-theme-color-preview');
       const resetCustomThemeColorBtn = this.loginScreen.shadowRoot.getElementById('reset-custom-theme-color-btn');
 
@@ -358,10 +384,12 @@
       const updateColorPreview = (color, fruit) => {
         const normalizedColor = normalizeHexColor(color);
         if (normalizedColor && customThemeColorPreview) {
-          const filter = hexToCssFilter(normalizedColor);
-          customThemeColorPreview.style.filter = filter;
+          customThemeColorPreview.style.filter = 'none';
           if (fruit) {
-            customThemeColorPreview.src = `images/${fruit}`;
+            // Banana Jam: fruits, "None" and your own icons
+            const src = window.WzIcons ? window.WzIcons.src(fruit) : `images/${fruit}`;
+            customThemeColorPreview.style.visibility = src ? 'visible' : 'hidden';
+            if (src) customThemeColorPreview.src = src;
           }
         }
       };
@@ -385,7 +413,7 @@
           if (resetCustomThemeColorBtn) resetCustomThemeColorBtn.disabled = false;
           const currentColor = (customThemeColorPicker && customThemeColorPicker.value) || 
                               (customThemeColorInput && customThemeColorInput.value) || '#e83d52';
-          const currentFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'strawberry.png';
+          const currentFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'banana.png';
           updateColorPreview(currentColor, currentFruit);
         } else {
           customThemeColorContainer.style.opacity = '0.5';
@@ -418,7 +446,7 @@
             window.ipc.invoke('set-setting', 'ui.customThemeName', currentName).catch(() => {});
             const currentColor = (customThemeColorPicker && customThemeColorPicker.value) || 
                                 (customThemeColorInput && customThemeColorInput.value) || '#e83d52';
-            const currentFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'strawberry.png';
+            const currentFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'banana.png';
             this.themeManager.applyCustomColorTheme(currentColor, currentName, currentFruit);
           }
         });
@@ -433,7 +461,7 @@
             if (enabled && customThemeColorPicker) {
               const color = customThemeColorPicker.value;
               const name = (customThemeNameInput && customThemeNameInput.value) || 'Custom Jam';
-              const fruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'strawberry.png';
+              const fruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'banana.png';
               await window.ipc.invoke('set-setting', 'ui.customThemeColor', color).catch(() => {});
               await window.ipc.invoke('set-setting', 'ui.customThemeName', name).catch(() => {});
               await window.ipc.invoke('set-setting', 'ui.customThemeFruit', fruit).catch(() => {});
@@ -503,15 +531,16 @@
 
       if (resetCustomThemeColorBtn) {
         resetCustomThemeColorBtn.addEventListener('click', async () => {
-          const currentFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'strawberry.png';
-          syncColorInputs('#e83d52', currentFruit);
-          if (customThemeNameInput) customThemeNameInput.value = 'Custom Jam';
-          if (customThemeFruitSelect) customThemeFruitSelect.value = 'strawberry.png';
+          const D = window.WZ_THEME_DEFAULTS || { main: '#b07a3c', name: 'Banana Jam', fruit: 'banana.png' };
+          const currentFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || D.fruit;
+          syncColorInputs(D.main, currentFruit);
+          if (customThemeNameInput) customThemeNameInput.value = D.name;
+          if (customThemeFruitSelect) customThemeFruitSelect.value = D.fruit;
           if (window.ipc && customThemeEnabledToggle && customThemeEnabledToggle.checked) {
-            await window.ipc.invoke('set-setting', 'ui.customThemeColor', '#e83d52').catch(() => {});
-            await window.ipc.invoke('set-setting', 'ui.customThemeName', 'Custom Jam').catch(() => {});
-            await window.ipc.invoke('set-setting', 'ui.customThemeFruit', 'strawberry.png').catch(() => {});
-            await this.themeManager.applyCustomColorTheme('#e83d52', 'Custom Jam', 'strawberry.png');
+            await window.ipc.invoke('set-setting', 'ui.customThemeColor', D.main).catch(() => {});
+            await window.ipc.invoke('set-setting', 'ui.customThemeName', D.name).catch(() => {});
+            await window.ipc.invoke('set-setting', 'ui.customThemeFruit', D.fruit).catch(() => {});
+            await this.themeManager.applyCustomColorTheme(D.main, D.name, D.fruit);
           }
         });
       }
@@ -528,7 +557,7 @@
 
       if (customThemeColorPicker && customThemeColorInput) {
         const initialColor = customThemeColorPicker.value || customThemeColorInput.value || '#e83d52';
-        const initialFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'strawberry.png';
+        const initialFruit = (customThemeFruitSelect && customThemeFruitSelect.value) || 'banana.png';
         syncColorInputs(initialColor, initialFruit);
       }
     }

@@ -124,6 +124,9 @@ function setupIpcHandlers(electronInstance) {
     return getUsernameLoggerPath(app);
   });
 
+  // colours shared with the game window
+  try { require('../utils/bjShared').install(app, ipcMain, BrowserWindow); } catch (e) { console.error('[Banana Jam] shared colours', e); }
+
   ipcMain.handle('get-setting', async (event, key) => {
     return await settingsService.getSetting(key);
   });
@@ -573,7 +576,7 @@ function setupIpcHandlers(electronInstance) {
   });
 
   ipcMain.handle('danger-zone:uninstall', async () => {
-    const continueUninstall = await electronInstance._confirmNoOtherInstances('uninstall Strawberry Jam');
+    const continueUninstall = await electronInstance._confirmNoOtherInstances('uninstall Banana Jam');
     if (!continueUninstall) {
       return { success: false, message: 'Uninstall cancelled by user.' };
     }
@@ -639,7 +642,29 @@ function setupIpcHandlers(electronInstance) {
     return closedWindows;
   });
 
+  // Banana Jam: the Mod Menu's On/Off switch can start and stop what a plugin does (a plugin opts in by defining
+  // window.bjPluginStart / window.bjPluginStop in its own window)
+  ipcMain.handle('bj-plugin-call', async (event, name, fn) => {
+    if (fn !== 'bjPluginStart' && fn !== 'bjPluginStop') return 'bad';
+    const w = electronInstance.pluginWindows && electronInstance.pluginWindows.get(name);
+    if (!w || w.isDestroyed()) return 'closed';
+    try {
+      return await w.webContents.executeJavaScript(
+        "(function(){try{if(typeof window." + fn + "!=='function')return 'nofn';return Promise.resolve(window." + fn + "()).then(function(v){return v===false?'failed':'ok'});}catch(e){return 'error';}})()"
+      );
+    } catch (e) { return 'error'; }
+  });
+
   ipcMain.on('open-plugin-window', electronInstance._handleOpenPluginWindow.bind(electronInstance));
+
+  // Banana Jam: the launcher answers the Mod Menu plugin request
+  ipcMain.on('bj-plugins-reply', (event, msg) => {
+    try {
+      if (!msg || typeof msg.id !== 'number') return;
+      const proc = electronInstance._apiProcess;
+      if (proc && !proc.killed) proc.send({ type: 'bj-plugins-reply', id: msg.id, data: msg.data });
+    } catch (_) {}
+  });
   ipcMain.on('open-game-window', electronInstance._handleOpenGameWindow.bind(electronInstance));
 
   ipcMain.handle('get-df', async () => {
@@ -726,7 +751,7 @@ function setupIpcHandlers(electronInstance) {
                   if (json && json.service === 'strawberry-jam-api') {
                     resolve(port)
                   } else {
-                    reject(new Error('Not Strawberry Jam API'))
+                    reject(new Error('Not Banana Jam API'))
                   }
                 } catch {
                   reject(new Error('Invalid response'))

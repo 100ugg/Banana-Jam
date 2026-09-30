@@ -31,6 +31,13 @@ class AutoUpdateService {
   }
 
   initialize() {
+    // Banana Jam: auto-updates are switched off, so it can never pull in
+    // Strawberry Jam (or anything else) from another project's releases.
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = false;
+    try { logManager.info('Auto-updates are disabled in Banana Jam', 'auto-update'); } catch (e) {}
+    return;
+
     if (!this.app.isPackaged) {
       try {
         logManager.info('Skipping auto-updater initialization in development mode', 'auto-update');

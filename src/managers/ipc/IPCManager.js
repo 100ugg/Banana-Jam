@@ -154,7 +154,7 @@ class IPCManager {
           if (this.application.consoleMessage) {
             this.application.consoleMessage({
               type: 'notify',
-              message: 'Strawberry Jam detected modification to your .swf, it has been automatically reapplied.'
+              message: 'Banana Jam detected modification to your .swf, it has been automatically reapplied.'
             })
           }
         })
